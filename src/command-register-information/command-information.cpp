@@ -5,7 +5,7 @@ void CreatedCommandData(){
   // ============================================================================
   // TIER: kron-basic
   // ============================================================================
-  
+
   // --------------------------------------------------------------------------
   // Comando: list
   // --------------------------------------------------------------------------
@@ -17,7 +17,9 @@ void CreatedCommandData(){
    * Default: directorio actual
    */
   CommandMetaData list;
-  list.default_name = "list";
+  list.default_name       = "list";
+  list.minimun_positional = 0;
+  list.maximun_positional = 1;
   list.option_avaible = {
     "--all",          // -a: Incluye entradas ocultas
     "--long",         // -l: Formato largo con metadatos
@@ -28,7 +30,6 @@ void CreatedCommandData(){
     "--no-header"     // Omite la cabecera de la tabla
   };
   // list.handler = ListHandler;
-  
   GeneralCommandLog(list);
 
   // --------------------------------------------------------------------------
@@ -42,7 +43,9 @@ void CreatedCommandData(){
    * Acepta múltiples rutas separadas por espacio
    */
   CommandMetaData inspect;
-  inspect.default_name = "inspect";
+  inspect.default_name       = "inspect";
+  inspect.minimun_positional = 1;
+  inspect.maximun_positional = 100;
   inspect.option_avaible = {
     "--all",             // -a: Incluye archivos ocultos
     "--recursive",       // -r: Inspecciona subdirectorios recursivamente
@@ -53,7 +56,6 @@ void CreatedCommandData(){
     "--reverse"          // Invierte el orden del sort
   };
   // inspect.handler = InspectHandler;
-  
   GeneralCommandLog(inspect);
 
   // --------------------------------------------------------------------------
@@ -67,7 +69,9 @@ void CreatedCommandData(){
    * Origen y destino pueden ser archivos o directorios
    */
   CommandMetaData copy;
-  copy.default_name = "copy";
+  copy.default_name       = "copy";
+  copy.minimun_positional = 2;
+  copy.maximun_positional = 2;
   copy.option_avaible = {
     "--recursive",      // -r: Copia directorios recursivamente
     "--force",          // -f: Sobreescribe destino sin preguntar
@@ -78,7 +82,6 @@ void CreatedCommandData(){
     "--verbose"         // Muestra cada archivo copiado
   };
   // copy.handler = CopyHandler;
-  
   GeneralCommandLog(copy);
 
   // --------------------------------------------------------------------------
@@ -91,7 +94,9 @@ void CreatedCommandData(){
    * Destino puede ser nueva ubicación o nuevo nombre
    */
   CommandMetaData move;
-  move.default_name = "move";
+  move.default_name       = "move";
+  move.minimun_positional = 2;
+  move.maximun_positional = 2;
   move.option_avaible = {
     "--force",        // -f: Sobreescribe destino sin preguntar
     "--no-overwrite", // Falla si el destino existe
@@ -99,7 +104,6 @@ void CreatedCommandData(){
     "--verbose"       // Muestra detalles de la operación
   };
   // move.handler = MoveHandler;
-  
   GeneralCommandLog(move);
 
   // --------------------------------------------------------------------------
@@ -112,8 +116,10 @@ void CreatedCommandData(){
    * Uso: kron delete <ruta> [ruta2 ...]
    * Acepta múltiples rutas a eliminar
    */
-  CommandMetaData delete_cmd;  // 'delete' es keyword en C++, usar delete_cmd
-  delete_cmd.default_name = "delete";
+  CommandMetaData delete_cmd;  // 'delete' es keyword en C++
+  delete_cmd.default_name       = "delete";
+  delete_cmd.minimun_positional = 1;
+  delete_cmd.maximun_positional = 100;
   delete_cmd.option_avaible = {
     "--recursive",  // -r: Elimina directorios y su contenido
     "--force",      // -f: Sin confirmación interactiva
@@ -122,9 +128,7 @@ void CreatedCommandData(){
     "--match"       // Elimina solo entradas que coincidan con el patrón
   };
   // delete_cmd.handler = DeleteHandler;
-  
   GeneralCommandLog(delete_cmd);
-  
 
   // --------------------------------------------------------------------------
   // Comando: find
@@ -137,7 +141,9 @@ void CreatedCommandData(){
    * Raíz de búsqueda como primer argumento posicional
    */
   CommandMetaData find;
-  find.default_name = "find";
+  find.default_name       = "find";
+  find.minimun_positional = 1;
+  find.maximun_positional = 1;
   find.option_avaible = {
     "--name",            // Busca por nombre (glob): test_*.cpp, *config*
     "--ext",             // Busca por extensión: cpp, .cpp (ambos válidos)
@@ -151,30 +157,66 @@ void CreatedCommandData(){
     "--no-hidden"        // Excluye archivos ocultos
   };
   // find.handler = FindHandler;
-  
   GeneralCommandLog(find);
 
-  // ============================================================================
-  // NOTAS DE IMPLEMENTACIÓN
-  // ============================================================================
+  // --------------------------------------------------------------------------
+  // Comando: rename
+  // --------------------------------------------------------------------------
   /*
-   * FLAGS GLOBALES (aplicables a todos los comandos):
-   * --help, -h       : Muestra ayuda del comando
-   * --version, -v    : Muestra versión del binario y tier
-   * --no-color       : Desactiva colores ANSI
-   * --quiet, -q      : Suprime output informativo, solo errores
-   * --verbose        : Output extendido (algunos comandos específicos)
-   * --dry-run, -n    : Simula sin ejecutar (comandos destructivos)
-   * --output, -o     : Formato de salida: plain, json, csv
+   * Renombra un archivo o directorio en su misma ubicación.
+   * Operación atómica mediante rename(2) cuando es posible.
    * 
-   * CONFLICTOS A VALIDAR EN EL PARSER:
-   * - copy/move: --force ⊗ --no-overwrite
-   * - copy: --force ⊗ --skip-existing
-   * - inspect/find: --depth sin --recursive → warning
-   * 
-   * CONFIRMACIONES INTERACTIVAS:
-   * - delete sin --force → pide confirmación en TTY
-   * - move con --force → sobreescribe sin preguntar
-   * - copy con conflictos → comportamiento según flags
+   * Uso: kron rename <ruta> <nuevo-nombre>
+   * nuevo-nombre es solo el nombre, no una ruta completa
    */
+  CommandMetaData rename_cmd;  // 'rename' puede colisionar con rename(2) de <cstdio>
+  rename_cmd.default_name       = "rename";
+  rename_cmd.minimun_positional = 2;
+  rename_cmd.maximun_positional = 2;
+  rename_cmd.option_avaible = {
+    "--force",    // -f: Sobreescribe si ya existe ese nombre
+    "--dry-run"   // -n: Simula el renombrado
+  };
+  // rename_cmd.handler = RenameHandler;
+  GeneralCommandLog(rename_cmd);
+
+  // --------------------------------------------------------------------------
+  // Comando: mkdir
+  // --------------------------------------------------------------------------
+  /*
+   * Crea uno o más directorios en el filesystem.
+   * 
+   * Uso: kron mkdir <ruta>
+   */
+  CommandMetaData mkdir_cmd;
+  mkdir_cmd.default_name       = "mkdir";
+  mkdir_cmd.minimun_positional = 1;
+  mkdir_cmd.maximun_positional = 1;
+  mkdir_cmd.option_avaible = {
+    "--parents",  // -p: Crea directorios intermedios si no existen
+    "--verbose"   // Muestra cada directorio creado
+  };
+  // mkdir_cmd.handler = MkdirHandler;
+  GeneralCommandLog(mkdir_cmd);
+
+  // --------------------------------------------------------------------------
+  // Comando: touch
+  // --------------------------------------------------------------------------
+  /*
+   * Crea archivos vacíos o actualiza la fecha de modificación
+   * de archivos existentes.
+   * 
+   * Uso: kron touch <ruta> [ruta2 ...]
+   * Acepta múltiples rutas
+   */
+  CommandMetaData touch;
+  touch.default_name       = "touch";
+  touch.minimun_positional = 1;
+  touch.maximun_positional = 100;
+  touch.option_avaible = {
+    "--no-create",  // Solo actualiza fecha si existe, no crea nuevo
+    "--timestamp"   // Fecha ISO personalizada: 2024-06-01T12:00:00
+  };
+  // touch.handler = TouchHandler;
+  GeneralCommandLog(touch);
 }
