@@ -1,6 +1,5 @@
 #include "../include/core-hpp/parsing.hpp"
 #include "command/command-implementation.hpp"
-#include "command/command-raw-metadata.hpp"
 #include "option/option-implementation.hpp"
 #include "option/option-raw-metadata.hpp"
 #include "token/token-raw-metadata.hpp"
@@ -9,10 +8,6 @@
 #include <string>
 #include <unordered_set>
 #include <vector>
-
-namespace {
-
-}
 
 GroupToken parsing(const std::vector<Token>& token_raw){
   GroupToken token_clasificated;
