@@ -5,11 +5,11 @@
 std::vector<Token> tokenization(const std::vector<std::string>& arguments){
   std::vector<Token> argument_raw;
   argument_raw.reserve(arguments.size());
-  bool only_positional;
+  bool only_positional = false;
 
   for(const auto& arg : arguments){
     //Guardar primer (que no tenga guion) elemento como comando 
-    if(argument_raw.empty() && arg.starts_with("-") && !only_positional){
+    if(argument_raw.empty() && !arg.starts_with("-") && !only_positional){
       argument_raw.emplace_back(Token{
           .type = TypeToken::COMMAND,
           .name = arg,
@@ -19,7 +19,7 @@ std::vector<Token> tokenization(const std::vector<std::string>& arguments){
     }
     
     //Detectar cuando se introdujo el "solo posicinales"
-    if(arg == std::string("--")){
+    if(arg == "--"){
       only_positional = true;
       continue;
     }
