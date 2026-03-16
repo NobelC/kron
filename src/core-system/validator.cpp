@@ -78,6 +78,7 @@ bool ValidationGroupToken(GroupToken& group_raw){
   //En el parser ya se comprueba si el comando existe y el tokenizador se encarga de que exista un 
   //comando aunque este luego no sea validator
   const auto data_command = GetCommandData(group_raw.command.name);
+  
   if(data_command == nullptr){
     return false;
   }
