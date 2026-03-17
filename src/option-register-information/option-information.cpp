@@ -4,6 +4,7 @@
 #include <any>
 #include <cctype>
 #include <filesystem>
+#include <sys/stat.h>
 
 void CreatedOptionData(){
 
@@ -105,6 +106,15 @@ void CreatedOptionData(){
   depth.category        = OptionCategory::FILTERING;
   // depth.hanlder = DepthHandler;
   GeneralOptionLog(depth);
+
+  OptionMetaData stats;
+  stats.normalized_name = "--stats";
+  stats.alias_name = "";
+  stats.conflict_name = {};
+  stats.data_type = TypeDataReceived::NONE;
+  stats.category = OptionCategory::PRESENTATION;
+  stats.hanlder = std::monostate{};
+  GeneralOptionLog(stats);
 
   OptionMetaData sort;
   sort.normalized_name = "--sort";

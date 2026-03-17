@@ -7,12 +7,14 @@
 #include <cctype>
 #include <chrono>
 #include <cstddef>
+#include <cstdint>
 #include <ctime>
 #include <filesystem>
 #include <format>
 #include <functional>
 #include <iostream>
 #include <iterator>
+#include <numeric>
 #include <string>
 #include <string_view>
 #include <sys/types.h>
@@ -36,6 +38,13 @@ const std::vector<std::pair<std::string, int>> HEADERS = {
   {"TYPE",           8},
   {"SIZE",           8},
   {"LAST MODIFIED", 12}
+};
+
+struct StatsDirs {
+  std::uintmax_t total_archive = 0;
+  std::uintmax_t total_size    = 0;
+  std::uintmax_t total_dirs    = 0;
+  std::uintmax_t total_file    = 0;
 };
 
 struct DirID {
@@ -63,7 +72,7 @@ namespace {
     std::vector<std::string> result;
     for(auto individual_field : input
         | std::views::filter([](char c){ return c != ' '; })
-        | std::views::transform([](char c){ return (char)std::toupper(c); })
+        | std::views::transform([](char c){ return std::toupper(c); })
         | std::views::split(','))
     {
       result.emplace_back(individual_field.begin(), individual_field.end());
@@ -150,7 +159,6 @@ namespace {
 
         std::cout << std::format("{}/:\n", dirs);
 
-        // Imprimir headers seleccionados
         for(const auto& header : header_field){
           auto it = std::ranges::find_if(HEADERS, [&](const auto& head){
             return head.first == header;
@@ -161,7 +169,6 @@ namespace {
         }
         std::cout << '\n';
 
-        // Imprimir filas
         for(const auto& path : file_entry.at(dirs)){
           struct stat stat_path;
           if(stat(path.path().c_str(), &stat_path) == 0){
@@ -183,13 +190,11 @@ namespace {
       else{
         std::cout << std::format("{}/:\n", dirs);
 
-        // Imprimir todos los headers
         for(const auto& header : HEADERS){
           std::cout << std::format("{:<{}}", header.first, header.second);
         }
         std::cout << '\n';
 
-        // Imprimir todas las filas
         for(const auto& path : file_entry.at(dirs)){
           struct stat stat_path;
           if(stat(path.path().c_str(), &stat_path) == 0){
@@ -203,6 +208,13 @@ namespace {
         }
       }
     }
+  }
+
+  void print_stats(const StatsDirs& s){
+    std::cout << std::format("Scanning {}  entries...\n", s.total_archive);
+    std::cout << std::format("Total size  : {}\n", size_parse(static_cast<off_t>(s.total_size)));
+    std::cout << std::format("Directories : {}\n", s.total_dirs);
+    std::cout << std::format("Files       : {}\n", s.total_file);
   }
 }
 
@@ -227,7 +239,7 @@ void INSPECT_HANDLER(const GroupToken& token_group){
 
   for(const auto& dirs : dirs_name){
     if(!std::filesystem::exists(dirs)){
-      std::cerr << std::format("ERROR : {} NO EXISTE O NO ES UN DIRECTORIO VALIDO\n", dirs);
+      std::cerr << std::format("\n  [ERROR] '{}' does not exist or is not a valid directory.\n\n", dirs);
       continue;
     }
 
@@ -288,5 +300,33 @@ void INSPECT_HANDLER(const GroupToken& token_group){
     header_field = field_option->value;
   }
 
-  PrintInformation(multi_entry, dirs_name, field_exist, header_field);
+  bool only_data = std::ranges::any_of(token_group.options, [](const Token& t){
+    return t.name == "--stats";
+  });
+
+  auto collect_stats = [](StatsDirs acc, const auto& pair){
+    for(const auto& entry : pair.second){
+      acc.total_archive++;
+      if(entry.is_directory()) {acc.total_dirs++;}
+      else {
+        acc.total_file++;
+        acc.total_size += entry.file_size();
+      }
+    }
+    return acc;
+  };
+
+  if(token_group.options.size() == 1 && only_data){
+    StatsDirs stat_dirs = std::accumulate(
+        multi_entry.begin(), multi_entry.end(), StatsDirs{}, collect_stats);
+    print_stats(stat_dirs);
+  }
+  else{
+    if(only_data){
+      StatsDirs stat_dirs = std::accumulate(
+          multi_entry.begin(), multi_entry.end(), StatsDirs{}, collect_stats);
+      print_stats(stat_dirs);
+    }
+    PrintInformation(multi_entry, dirs_name, field_exist, header_field);
+  }
 }

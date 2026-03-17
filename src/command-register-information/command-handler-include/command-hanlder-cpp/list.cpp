@@ -164,6 +164,5 @@ void LIST_HANDLER(const GroupToken& token_group){
       if(option_data->normalized_name == "--no-header") {no_header_format = true;}
     }
   }
-
   PrintInformation(long_format, no_header_format, file_entry);
 }

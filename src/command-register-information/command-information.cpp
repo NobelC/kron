@@ -56,6 +56,7 @@ void CreatedCommandData(){
     "--sort",            // Ordena resultado: name, size, modified
     "--reverse",          // Invierte el orden del sort
     "--filter",
+    "--stats"
   };
   inspect.handler = INSPECT_HANDLER;
   GeneralCommandLog(inspect);
