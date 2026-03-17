@@ -1,148 +1,134 @@
 # kron
 
-CLI multifuncional de manipulación e inspección de archivos para desarrolladores y usuarios avanzados.  
-Construido en **C++20 moderno** usando exclusivamente STL. Sin dependencias externas.
+A multifunctional CLI tool for file manipulation and inspection, built for developers and power users.  
+Written in **modern C++20** using exclusively the STL. Zero external dependencies.
 
 ---
 
-## ¿Qué es kron?
+## What is kron?
 
-kron es una amalgama de comandos clásicos de shell (`ls`, `cp`, `mv`, `rm`, `find`) con operaciones avanzadas de análisis, indexado, snapshots y automatización del filesystem. Su núcleo es la **visibilidad profunda** del sistema de archivos.
+kron is a blend of classic shell commands (`ls`, `cp`, `mv`, `rm`, `find`) with advanced operations for analysis, indexing, snapshots, and filesystem automation. Its core is **deep filesystem visibility**.
 
 ---
 
-## Compilar
-
+## Build
 ```bash
 cmake -B build
 cmake --build build
 ```
 
-Para instalar globalmente via symlink:
-
+To install globally via symlink:
 ```bash
 sudo ln -sf $(pwd)/build/kron /usr/local/bin/kron
 ```
 
-Requiere: **CMake 3.15+**, compilador con soporte **C++20**.
+Requirements: **CMake 3.15+**, compiler with **C++20** support.
 
 ---
 
-## Uso
-
+## Usage
 ```
-kron <comando> [argumentos] [opciones]
+kron <command> [arguments] [options]
 ```
 
 ---
 
-## Comandos
+## Commands
 
-### Básicos
+### Basic
 
-| Comando | Descripción |
-|---------|-------------|
-| `list [ruta]` | Lista el contenido de un directorio |
-| `inspect <ruta>...` | Muestra metadatos completos de archivos o directorios |
-| `copy <origen> <destino>` | Copia archivos o directorios |
-| `move <origen> <destino>` | Mueve o renombra |
-| `delete <ruta>...` | Elimina archivos o directorios |
-| `find <directorio>` | Busca por criterios combinables |
-| `rename <ruta> <nombre>` | Renombra en el mismo lugar |
-| `mkdir <ruta>` | Crea directorios |
-| `touch <ruta>...` | Crea archivos vacíos o actualiza fecha |
+| Command | Description | Status |
+|---------|-------------|--------|
+| `list [path]` | List directory contents | ✅ |
+| `inspect <path>...` | Show full file/directory metadata | 🔧 |
+| `copy <src> <dst>` | Copy files or directories | 🔧 |
+| `move <src> <dst>` | Move or rename | 🔧 |
+| `delete <path>...` | Delete files or directories | 🔧 |
+| `find <directory>` | Search by combinable criteria | 🔧 |
+| `rename <path> <name>` | Rename in place | 🔧 |
+| `mkdir <path>` | Create directories | 🔧 |
+| `touch <path>...` | Create empty files or update timestamps | 🔧 |
 
-### Medios
+### Intermediate
 
-| Comando | Descripción |
-|---------|-------------|
-| `tree [ruta]` | Árbol visual de directorios |
-| `size <ruta>...` | Tamaño real en disco |
-| `hash <ruta>...` | Checksum criptográfico |
-| `permissions <ruta>...` | Ver y modificar permisos |
-| `symlink <origen> <enlace>` | Crear enlaces simbólicos |
-| `compare <ruta1> <ruta2>` | Comparar archivos o directorios |
-| `watch <ruta>` | Monitoreo de cambios en tiempo real |
-| `recent [ruta]` | Archivos modificados recientemente |
-| `empty <ruta>` | Detectar archivos y directorios vacíos |
+| Command | Description | Status |
+|---------|-------------|--------|
+| `tree [path]` | Visual directory tree | 🔧 |
+| `size <path>...` | Real disk usage | 🔧 |
+| `hash <path>...` | Cryptographic checksum | 🔧 |
+| `permissions <path>...` | View and modify permissions | 🔧 |
+| `symlink <src> <link>` | Create symbolic links | 🔧 |
+| `compare <path1> <path2>` | Compare files or directories | 🔧 |
+| `watch <path>` | Real-time change monitoring | 🔧 |
+| `recent [path]` | Recently modified files | 🔧 |
+| `empty <path>` | Detect empty files and directories | 🔧 |
 
-### Avanzados
+### Advanced
 
-| Comando | Descripción |
-|---------|-------------|
-| `duplicates <ruta>` | Encuentra duplicados por contenido (hash) |
-| `analyze <ruta>` | Análisis estadístico del filesystem |
-| `snapshot <ruta>` | Instantánea del estado del directorio |
-| `diff-snapshot <snap1> <snap2>` | Compara dos snapshots |
-| `index <ruta>` | Construye un índice consultable |
-| `query <índice> <expresión>` | Consulta un índice con expresiones de filtro |
-| `flatten <ruta> <destino>` | Aplana un árbol de directorios |
-| `organize <ruta>` | Organiza archivos por reglas |
-| `encrypt <ruta> <destino>` | Cifra archivos o directorios |
-| `decrypt <ruta> <destino>` | Descifra archivos cifrados |
+| Command | Description | Status |
+|---------|-------------|--------|
+| `duplicates <path>` | Find duplicates by content hash | 🔧 |
+| `analyze <path>` | Statistical filesystem analysis | 🔧 |
+| `snapshot <path>` | Capture directory state | 🔧 |
+| `diff-snapshot <s1> <s2>` | Compare two snapshots | 🔧 |
+| `index <path>` | Build a queryable filesystem index | 🔧 |
+| `query <index> <expr>` | Query an index with filter expressions | 🔧 |
+| `flatten <path> <dst>` | Flatten a directory tree | 🔧 |
+| `organize <path>` | Organize files by rules | 🔧 |
+| `encrypt <path> <dst>` | Encrypt files or directories | 🔧 |
+| `decrypt <path> <dst>` | Decrypt encrypted files | 🔧 |
 
 ---
 
-## Ejemplos
-
+## Examples
 ```bash
-# Listar con formato largo, ordenado por tamaño
+# List with long format, sorted by size descending
 kron list ./src --long --sort=size --reverse
 
-# Listar solo archivos .cpp
+# List only .cpp files
 kron list ./src --filter "*.cpp"
 
-# Listar con directorios primero, incluyendo ocultos
+# List with directories first, including hidden files
 kron list . --all --dirs-first
 
-# Buscar archivos .log mayores a 1MB modificados este año
+# Find .log files larger than 1MB modified this year
 kron find ./logs --ext log --size-gt 1MB --modified-after 2025-01-01
 
-# Ver tamaño de cada subdirectorio
+# Show size of each subdirectory
 kron size . --depth 1 --sort --reverse
 ```
 
 ---
 
-## Flags globales
+## Global Flags
 
-Aplicables a todos los comandos.
+Applicable to all commands.
 
-| Flag | Alias | Descripción |
+| Flag | Alias | Description |
 |------|-------|-------------|
-| `--help` | `-h` | Ayuda del comando |
-| `--version` | `-v` | Versión del binario |
-| `--no-color` | — | Desactiva colores ANSI |
-| `--quiet` | `-q` | Solo errores, sin output informativo |
-| `--dry-run` | `-n` | Simula sin ejecutar |
-| `--output` | `-o` | Formato: `plain`, `json`, `csv` |
+| `--help` | `-h` | Show command help |
+| `--version` | `-v` | Print binary version |
+| `--no-color` | — | Disable ANSI colors |
+| `--quiet` | `-q` | Only show errors |
+| `--dry-run` | `-n` | Simulate without executing |
+| `--output` | `-o` | Output format: `plain`, `json`, `csv` |
 
 ---
 
-## Arquitectura
-
+## Architecture
 ```
 argv
-  └── tokenization      — clasifica cada argumento en tokens
-        └── parsing     — valida existencia de comandos y opciones
-              └── validator — validación semántica, tipos, conflictos
-                    └── executor — despacha al handler del comando
+  └── tokenization      — classifies each argument into tokens
+        └── parsing     — validates command and option existence
+              └── validator — semantic validation, types, conflicts
+                    └── executor — dispatches to the command handler
 ```
 
-Las opciones se ejecutan en orden cronológico fijo:  
+Options execute in fixed chronological order:  
 `COLLECTION → FILTERING → SORTING → PRESENTATION`
 
 ---
 
-## Estado
+## License
 
-| Comando | Estado |
-|---------|--------|
-| `list` | ✅ Implementado |
-| El resto | 🔧 En desarrollo |
-
----
-
-## Licencia
-
-WIP
+MIT
