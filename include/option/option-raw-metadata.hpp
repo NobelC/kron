@@ -106,6 +106,7 @@ struct OptionMetaData{
   std::string normalized_name;
   std::string alias_name;
   std::vector<std::string> conflict_name;
+  std::vector<std::string> requieres_name = {};
   TypeDataReceived data_type;
   OptionCategory category;
   OptionHandler hanlder;

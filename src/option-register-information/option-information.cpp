@@ -102,6 +102,7 @@ void CreatedOptionData(){
   depth.normalized_name = "--depth";
   depth.alias_name      = "-d";
   depth.conflict_name   = {};
+  depth.requieres_name  = {"--recursive"};
   depth.data_type       = TypeDataReceived::EXTENSION;
   depth.category        = OptionCategory::FILTERING;
   // depth.hanlder = DepthHandler;
@@ -115,6 +116,15 @@ void CreatedOptionData(){
   stats.category = OptionCategory::PRESENTATION;
   stats.hanlder = std::monostate{};
   GeneralOptionLog(stats);
+
+  OptionMetaData stats_only;
+  stats_only.normalized_name = "--stats-only";
+  stats_only.alias_name = "";
+  stats_only.conflict_name = {};
+  stats_only.data_type = TypeDataReceived::NONE;
+  stats_only.category = OptionCategory::PRESENTATION;
+  stats_only.hanlder = std::monostate{};
+  GeneralOptionLog(stats_only);
 
   OptionMetaData sort;
   sort.normalized_name = "--sort";

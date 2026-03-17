@@ -132,6 +132,12 @@ bool ValidationGroupToken(GroupToken& group_raw){
         return false;
       }
     }
+    for(const auto& requieres_option : option_data->requieres_name){
+      if(!eliminated_duplicated_option.contains(requieres_option)){
+        OPTION_REQUIERES_OPTION(option_data->normalized_name,requieres_option);
+        return false;
+      }
+    }
 
     //Validar tipo de dato que debe recibir:
     switch(option_data->data_type){

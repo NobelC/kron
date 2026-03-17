@@ -48,3 +48,11 @@ void INCORRECT_NUMBER_OF_POSITIONAL_NUMBER(const std::string& command, const int
   std::cerr << std::format("  Minimum  : {}\n", min);
   std::cerr << std::format("  Maximum  : {}\n\n", max);
 }
+
+void OPTION_REQUIERES_OPTION(const std::string& option,const std::string& requieres){
+  std::cerr << std::format("[ERROR] The '{}' option requires the '{}' option to work correctly",option, requieres);
+}
+
+void DEFAULT_VALUE_OPTION(const std::string& option, const int& default_value){
+  std::cerr << std::format("[WARNING] The '{}' option requires a value, since it does not have one in the input, its default value will be used '{}'", option, default_value);
+}
