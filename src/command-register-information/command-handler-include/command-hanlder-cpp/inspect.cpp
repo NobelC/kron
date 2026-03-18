@@ -1,3 +1,4 @@
+
 #include "../../../../include/token/group-token.hpp"
 #include "option/option-raw-metadata.hpp"
 #include "option/option-implementation.hpp"
@@ -15,10 +16,13 @@
 #include <functional>
 #include <iostream>
 #include <iterator>
+#include <mutex>
 #include <numeric>
+#include <queue>
 #include <string>
 #include <string_view>
 #include <sys/types.h>
+#include <thread>
 #include <unordered_map>
 #include <unordered_set>
 #include <utility>
@@ -28,6 +32,8 @@
 #include <grp.h>
 #include <ranges>
 #include <vector>
+
+const int MAX_THREAD = 9;
 
 const std::vector<std::pair<std::string, int>> HEADERS = {
   {"PERMS",         10},
@@ -46,6 +52,11 @@ struct StatsDirs {
   std::uintmax_t total_size    = 0;
   std::uintmax_t total_dirs    = 0;
   std::uintmax_t total_file    = 0;
+};
+
+struct ID_entry{
+  std::string father;
+  std::filesystem::directory_entry son;
 };
 
 struct DirID {
@@ -221,14 +232,24 @@ namespace {
 
 void INSPECT_HANDLER(const GroupToken& token_group){
   std::unordered_map<std::string, std::vector<std::filesystem::directory_entry>> multi_entry;
+  std::queue<ID_entry> dirs_name_queque;
   std::vector<std::string> dirs_name;
   dirs_name.reserve(token_group.positional.size());
 
+
   if(token_group.positional.empty()){
     dirs_name.emplace_back(std::filesystem::current_path().string());
+    dirs_name_queque.push(ID_entry{
+        .father = std::filesystem::current_path().string(),
+        .son = std::filesystem::directory_entry(std::filesystem::current_path())
+        });
   } else {
     for(const auto& dirs : token_group.positional){
       dirs_name.emplace_back(dirs.name);
+      dirs_name_queque.emplace(ID_entry{
+          .father = dirs.name,
+          .son = std::filesystem::directory_entry(dirs.name)
+          });
     }
   }
 
@@ -251,62 +272,97 @@ void INSPECT_HANDLER(const GroupToken& token_group){
   bool depth = depth_it != token_group.options.end();
 
   std::vector<std::filesystem::directory_entry> temp_entry;
+  size_t max_thread = std::thread::hardware_concurrency() > MAX_THREAD ? MAX_THREAD : std::thread::hardware_concurrency();
+  size_t min_thread = token_group.positional.empty() ? 1 : token_group.positional.size();
+  size_t n_thread = std::min(min_thread,max_thread);
+  std::mutex security_dirs_name;
+  std::mutex security_entry_data;
+  std::vector<std::thread> threads;
+  threads.reserve(n_thread);
 
-  for(const auto& dirs : dirs_name){
-    if(!std::filesystem::exists(dirs)){
-      std::cerr << std::format("\n  [ERROR] '{}' does not exist or is not a valid directory.\n\n", dirs);
-      continue;
-    }
+  for(size_t i = 0 ; i < n_thread ; i++){
+    threads.emplace_back([&](){
+          while(!dirs_name_queque.empty()){
+            security_dirs_name.lock();
+            if(dirs_name_queque.empty()){
+              security_dirs_name.unlock();
+              break;
+            }
+            ID_entry path = dirs_name_queque.front();
+            dirs_name_queque.pop();
+            security_dirs_name.unlock();
+            if(!std::filesystem::exists(path.father)){
+            std::cerr << std::format(" [ERROR] '{}' does not exist or is not a valid directory.\n", 
+                path.son.path().filename().string());
+              continue;
+            }
+            std::vector<std::filesystem::directory_entry> temp_entry_thread;
+            std::unordered_set<DirID> visited;
+            if(recursive){
+              if(depth){
+              // FIX: stoi seguro — primero verificar si value está vacío
+                int depth_limit = 0;
+                if(!depth_it->value.empty()){
+                depth_limit = std::stoi(depth_it->value);
+              }
 
-    temp_entry.clear();
-    std::unordered_set<DirID> visited;
-
-    if(recursive){
-      if(depth){
-        // FIX: stoi seguro — primero verificar si value está vacío
-        int depth_limit = 0;
-        if(!depth_it->value.empty()){
-          depth_limit = std::stoi(depth_it->value);
-        }
-
-        for(auto entry = std::filesystem::recursive_directory_iterator(dirs, option_iterator);
-            entry != std::filesystem::recursive_directory_iterator();
-            ++entry)
-        {
-          if(entry.depth() <= depth_limit){
-            struct stat s;
-            if(stat(entry->path().c_str(), &s) == 0){
-              DirID id{ .device = s.st_dev, .inode = s.st_ino };
-              if(!visited.contains(id)){
-                visited.insert(id);
-                temp_entry.emplace_back(*entry);
+              for(auto entry = std::filesystem::recursive_directory_iterator(path.son.path(), option_iterator);
+                entry != std::filesystem::recursive_directory_iterator();
+                ++entry)
+              {
+                if(entry.depth() <= depth_limit){
+                  struct stat s;
+                  if(stat(entry->path().c_str(), &s) == 0){
+                    DirID id{ .device = s.st_dev, .inode = s.st_ino };
+                  if(!visited.contains(id)){
+                    visited.insert(id);
+                    temp_entry_thread.emplace_back(*entry);
+                  }
+                }
               }
             }
           }
-          // FIX: else { continue; } eliminado — era ruido
-        }
-      }
-      else{
-        for(const auto& entry : std::filesystem::recursive_directory_iterator(dirs,option_iterator)){
-          struct stat s;
-          if(stat(entry.path().c_str(), &s) == 0){
-            DirID id{ .device = s.st_dev, .inode = s.st_ino };
-            if(!visited.contains(id)){
-              visited.insert(id);
-              temp_entry.emplace_back(entry);
+        else{
+          for(const auto& entry : std::filesystem::directory_iterator(path.son.path(),option_iterator)){
+            if(!entry.is_directory()){
+              struct stat s;
+              if(stat(entry.path().c_str(), &s) == 0){
+                DirID id{ .device = s.st_dev, .inode = s.st_ino };
+                if(!visited.contains(id)){
+                  visited.insert(id);
+                  temp_entry_thread.emplace_back(entry);
+                }
+              }
+            }
+            else{
+              security_dirs_name.lock();
+              dirs_name_queque.push(ID_entry{
+                  .father = path.father,
+                  .son = entry
+                  });
+              security_dirs_name.unlock();
+              temp_entry_thread.emplace_back(entry);
             }
           }
         }
-      }
-    } else {
-      for(const auto& entry : std::filesystem::directory_iterator(dirs,option_iterator)){
-        temp_entry.emplace_back(entry);
+    } 
+    else {
+      for(const auto& entry : std::filesystem::directory_iterator(path.son.path(),option_iterator)){
+        temp_entry_thread.emplace_back(entry);
       }
     }
-
-    multi_entry[dirs] = temp_entry;
+      security_entry_data.lock();
+      auto& vec = multi_entry[path.father];
+      vec.insert(vec.end(), temp_entry_thread.begin(), temp_entry_thread.end());      
+      security_entry_data.unlock();
+    }
+    });
   }
 
+  for(auto& thread : threads){
+    thread.join();
+  }
+ 
   for(const auto& option : token_group.options){
     const auto& option_data = GetOptionData(option.name);
 
