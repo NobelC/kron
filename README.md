@@ -95,10 +95,10 @@ kron list ./src --filter "*.cpp"
 kron list . --all --dirs-first
 
 # Find .log files larger than 1MB modified this year
-kron find ./logs --ext log --size-gt 1MB --modified-after 2025-01-01
+kron find ./logs --ext log --size-gt 1MB --modified-after 2025-01-01 [NOT IMPLEMENTED ONLY EXAMPLE]
 
 # Show size of each subdirectory
-kron size . --depth 1 --sort --reverse
+kron size . --depth 1 --sort --reverse [NOT IMPLEMENTED ONLY EXAMPLE]
 ```
 
 ---
@@ -107,7 +107,7 @@ kron size . --depth 1 --sort --reverse
 
 Applicable to all commands.
 
-| Flag | Alias | Description |
+| Flag | Alias | Description | 
 |------|-------|-------------|
 | `--help` | `-h` | Show command help |
 | `--version` | `-v` | Print binary version |
