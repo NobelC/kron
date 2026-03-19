@@ -137,38 +137,83 @@ void CreatedOptionData(){
       if(!any) {return ;}
       std::string ordered_filter = *any;
       if(ordered_filter == "name"){
-      std::ranges::sort(filter_contex.entries, [](const std::filesystem::directory_entry& a , 
-            const std::filesystem::directory_entry& b){
-          std::string name_a = a.path().filename();
-          std::string name_b = b.path().filename();
-          std::ranges::transform(name_a, name_a.begin() , ::tolower);
-          std::ranges::transform(name_b, name_b.begin(), ::tolower);
-          return name_a < name_b;
+      std::ranges::sort(filter_contex.entries,[](const std::filesystem::directory_entry& a,
+            const std::filesystem::directory_entry& b)
+          {
+            std::string name_a = a.path().filename();
+            std::string name_b = b.path().filename();
+            std::ranges::transform(name_a, name_a.begin() , ::tolower);
+            std::ranges::transform(name_b, name_b.begin(), ::tolower);
+            return name_a < name_b;
           });
       }
       if(ordered_filter == "size"){
-        std::ranges::sort(filter_contex.entries, [](const std::filesystem::directory_entry& a,
-              const std::filesystem::directory_entry& b){
-            const auto size_file_a = a.is_regular_file() ? a.file_size() : 0;
-            const auto size_file_b = b.is_regular_file() ? b.file_size() : 0;
-
-            return std::tuple(size_file_a,a.path().filename()) > 
-            std::tuple(size_file_b,b.path().filename()); 
+        std::vector<std::pair<off_t, std::filesystem::directory_entry>> temp_data;
+        for(const auto& entry : filter_contex.entries){
+                 auto size_file = !entry.is_directory() ? entry.file_size() : 0;
+                 temp_data.push_back({size_file, entry});
+        }
+        std::ranges::sort(temp_data, [](const std::pair<off_t, std::filesystem::directory_entry>& a,
+            std::pair<off_t,std::filesystem::directory_entry>& b)
+            {
+              return std::pair(a.first,a.second.path().filename()) > std::pair(b.first,b.second.path().filename()); 
+            });
+        std::ranges::transform(temp_data, filter_contex.entries.begin(), [](
+              std::pair<off_t,std::filesystem::directory_entry>&entry)
+            {
+              return entry.second;
             });
       }
       if(ordered_filter == "type"){
-        std::ranges::sort(filter_contex.entries, [](const std::filesystem::directory_entry& a, 
-              const std::filesystem::directory_entry& b){
-          return std::pair(!a.is_directory(), a.path().filename()) < std::pair(!b.is_directory(), b.path().filename()); 
-        });
+        std::vector<std::pair<bool , std::filesystem::directory_entry>> temp_data;
+        for(const auto& entry : filter_contex.entries){
+          bool entry_bool = !entry.is_directory();
+          temp_data.push_back({entry_bool, entry});
+        }
+        std::ranges::sort(temp_data, [](const std::pair<bool, std::filesystem::directory_entry>& a, 
+            std::pair<bool, std::filesystem::directory_entry>&b)
+            {
+              return std::pair(a.first, a.second.path().filename()) > std::pair(b.first,b.second.path().filename());
+            });
+        std::ranges::transform(temp_data, filter_contex.entries.begin(), [](const auto& entry)
+            {
+              return entry.second; 
+            });
       }
       if(ordered_filter == "modified"){
-        std::ranges::sort(filter_contex.entries, [](const std::filesystem::directory_entry& a, 
-              const std::filesystem::directory_entry& b){
-          return a.last_write_time() < b.last_write_time(); 
+        std::vector<std::pair<std::filesystem::file_time_type, std::filesystem::directory_entry>> temp_entry;
+        for(const auto& entry : filter_contex.entries){
+          temp_entry.push_back({entry.last_write_time(), entry});
+        }
+
+        std::ranges::sort(temp_entry, [](const auto& a, const auto& b)
+        {
+          return std::pair(a.first,a.second.path().filename()) < std::pair(b.first,b.second.path().filename()); 
         });
+
+        std::ranges::transform(temp_entry, filter_contex.entries.begin(), [](const auto& entry)
+        {
+              return entry.second; 
+        });
+
+
       }
       if(ordered_filter == "ext" || ordered_filter == "extension"){
+        std::vector<std::pair<std::string, std::filesystem::directory_entry>> temp_entry;
+        for(const auto& entry : filter_contex.entries){
+          temp_entry.push_back({entry.path().extension().string(), entry});
+        }
+
+        std::ranges::sort(temp_entry, [](const auto& a, const auto& b)
+        {
+          return std::pair(a.first,a.second.path().filename()) < std::pair(b.first,b.second.path().filename()); 
+        });
+
+        std::ranges::transform(temp_entry, filter_contex.entries.begin(), [](const auto& entry)
+        {
+              return entry.second; 
+        });
+
           std::ranges::sort(filter_contex.entries, [](const std::filesystem::directory_entry& a, 
               const std::filesystem::directory_entry& b){
           return a.path().extension() < b.path().extension(); 
