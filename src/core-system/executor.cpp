@@ -7,19 +7,13 @@
 
 void executor(const GroupToken& token_group){
   const auto& data_command = GetCommandData(token_group.command.name);
-  if(token_group.options.empty()){
-    std::string empty;
-    HELP_HANDLER(empty);
-  }
-  else{
-    bool helper_call = std::ranges::any_of(token_group.options, [](const Token& t){
+  bool helper_call = std::ranges::any_of(token_group.options, [](const Token& t){
           return t.name == "--help";
-        });
+    });
 
-    if(helper_call){
-      HELP_HANDLER(token_group.command.name);
-      return;
-    }
-    data_command->handler(token_group);
+  if(helper_call){
+    HELP_HANDLER(token_group.command.name);
+    return;
   }
+  data_command->handler(token_group);
 }
