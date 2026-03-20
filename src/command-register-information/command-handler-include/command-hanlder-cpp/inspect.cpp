@@ -35,6 +35,10 @@
 
 const int MAX_THREAD = 9;
 
+static std::unordered_map<unsigned int,std::string> cache_owner;
+static std::unordered_map<unsigned int,std::string> cache_group;
+
+
 const std::vector<std::pair<std::string, int>> HEADERS = {
   {"PERMS",         10},
   {"INODE",         10},
@@ -136,10 +140,25 @@ namespace {
   {
     const auto perms_path = string_perms(path);
     const auto size_path  = path.is_directory() ? std::string("—") : size_parse(stat_path.st_size);
-    passwd* pw = getpwuid(stat_path.st_uid);
-    group*  gp = getgrgid(stat_path.st_gid);
-    std::string gp_name  = gp ? gp->gr_name : "UNKNOWN";
-    std::string pw_name  = pw ? pw->pw_name : "UNKNOWN";
+    std::string gp_name;
+    std::string pw_name;
+    if(cache_owner.contains(stat_path.st_uid)){
+      pw_name = cache_owner.at(stat_path.st_uid);
+    }
+    else{
+      passwd* pw = getpwuid(stat_path.st_uid);
+      pw_name  = pw ? pw->pw_name : "UNKNOWN";
+      cache_owner[stat_path.st_uid] = pw_name;
+    }
+
+    if(cache_group.contains(stat_path.st_gid)){
+      gp_name = cache_group.at(stat_path.st_gid);
+    }
+    else {
+      group*  gp = getgrgid(stat_path.st_gid);
+      gp_name  = gp ? gp->gr_name : "UNKNOWN";
+      cache_group[stat_path.st_gid] = gp_name;
+    }
     std::string name_cut = path.path().filename().string().size() > 30
       ? path.path().filename().string().substr(0, 20) + " ..." + path.path().extension().string()
       : path.path().filename().string();
