@@ -4,6 +4,7 @@
 #include <any>
 #include <cctype>
 #include <filesystem>
+#include <ranges>
 #include <sys/stat.h>
 
 void CreatedOptionData(){
@@ -137,15 +138,21 @@ void CreatedOptionData(){
       if(!any) {return ;}
       std::string ordered_filter = *any;
       if(ordered_filter == "name"){
-      std::ranges::sort(filter_contex.entries,[](const std::filesystem::directory_entry& a,
-            const std::filesystem::directory_entry& b)
+        std::vector<std::string> entry_name;
+
+        for(const auto& entry : filter_contex.entries){
+            std::string name_temp = entry.path().filename();
+            std::ranges::transform(name_temp, name_temp.begin(), ::tolower);
+            entry_name.emplace_back(name_temp);
+        }
+        std::ranges::sort(entry_name,[](const auto& a,const auto& b)
           {
-            std::string name_a = a.path().filename();
-            std::string name_b = b.path().filename();
-            std::ranges::transform(name_a, name_a.begin() , ::tolower);
-            std::ranges::transform(name_b, name_b.begin(), ::tolower);
-            return name_a < name_b;
+            return a < b;
           });
+        std::ranges::transform(entry_name, filter_contex.entries.begin(), [](const auto& entry){
+            std::filesystem::directory_entry entry_convert(entry);
+            return entry_convert;
+            });
       }
       if(ordered_filter == "size"){
         std::vector<std::pair<off_t, std::filesystem::directory_entry>> temp_data;

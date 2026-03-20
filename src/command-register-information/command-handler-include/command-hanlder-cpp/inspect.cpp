@@ -43,7 +43,7 @@ const std::vector<std::pair<std::string, int>> HEADERS = {
   {"OWNER",         10},
   {"NAME",          30},
   {"TYPE",           8},
-  {"SIZE",           8},
+  {"SIZE",           10},
   {"LAST MODIFIED", 12}
 };
 
@@ -141,7 +141,7 @@ namespace {
     std::string gp_name  = gp ? gp->gr_name : "UNKNOWN";
     std::string pw_name  = pw ? pw->pw_name : "UNKNOWN";
     std::string name_cut = path.path().filename().string().size() > 30
-      ? path.path().filename().string().substr(0, 30)
+      ? path.path().filename().string().substr(0, 20) + " ..." + path.path().extension().string()
       : path.path().filename().string();
     auto date_path = date_parse(path.last_write_time());
     std::string type = path.is_directory() ? "DIR" : "FIL";

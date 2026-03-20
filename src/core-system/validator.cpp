@@ -82,10 +82,10 @@ bool ValidationGroupToken(GroupToken& group_raw){
   const auto data_command = GetCommandData(group_raw.command.name);
 
   bool version = std::ranges::any_of(group_raw.options, [](const Token& t){
-        return t.name == "--version";
+        return t.name == "--version" || t.name == "-v";
       });
   bool help_only = std::ranges::any_of(group_raw.options, [](const Token& t){
-        return t.name == "--help";
+        return t.name == "--help" || t.name == "-h";
       });
 
   if(version){
