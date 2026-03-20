@@ -21,15 +21,15 @@ void CreatedCommandData(){
   list.default_name       = "list";
   list.minimun_positional = 0;
   list.maximun_positional = 1;
-  list.option_avaible = {
+  list.option_avaible.insert(list.option_avaible.end(),{
     "--all",          // -a: Incluye entradas ocultas
     "--long",         // -l: Formato largo con metadatos
     "--sort",         // Ordenar por: name, size, modified, type
     "--reverse",      // Invierte el orden
     "--dirs-first",   // Muestra directorios antes que archivos
     "--filter",       // Filtra por patrón glob: *.cpp, test_*
-    "--no-header"     // Omite la cabecera de la tabla
-  };
+    "--no-header",
+  });
   list.handler = LIST_HANDLER;
   GeneralCommandLog(list);
 
@@ -47,18 +47,18 @@ void CreatedCommandData(){
   inspect.default_name       = "inspect";
   inspect.minimun_positional = 0;
   inspect.maximun_positional = 100;
-  inspect.option_avaible = {
+  inspect.option_avaible.insert(inspect.option_avaible.end(),{
     "--all",             // -a: Incluye archivos ocultos
     "--recursive",       // -r: Inspecciona subdirectorios recursivamente
     "--depth",           // -d: Profundidad máxima de recursión
     "--follow-symlinks", // Sigue enlaces simbólicos
     "--fields",          // Selecciona campos: name,size,modified,permissions,type,inode
     "--sort",            // Ordena resultado: name, size, modified
-    "--reverse",          // Invierte el orden del sort
+    "--reverse",         // Invierte el orden del sort
     "--filter",
     "--stats",
-    "--stats-only"
-  };
+    "--stats-only",
+  });
   inspect.handler = INSPECT_HANDLER;
   GeneralCommandLog(inspect);
 
@@ -76,7 +76,7 @@ void CreatedCommandData(){
   copy.default_name       = "copy";
   copy.minimun_positional = 2;
   copy.maximun_positional = 2;
-  copy.option_avaible = {
+  copy.option_avaible.insert(copy.option_avaible.end(),{
     "--recursive",      // -r: Copia directorios recursivamente
     "--force",          // -f: Sobreescribe destino sin preguntar
     "--no-overwrite",   // Falla si el destino existe
@@ -84,7 +84,7 @@ void CreatedCommandData(){
     "--preserve",       // -p: Preserva metadatos: fechas, permisos
     "--dry-run",        // -n: Muestra qué se copiaría sin ejecutar
     "--verbose"         // Muestra cada archivo copiado
-  };
+  });
   // copy.handler = CopyHandler;
   GeneralCommandLog(copy);
 
@@ -101,12 +101,12 @@ void CreatedCommandData(){
   move.default_name       = "move";
   move.minimun_positional = 2;
   move.maximun_positional = 2;
-  move.option_avaible = {
+  move.option_avaible.insert(move.option_avaible.end(),{
     "--force",        // -f: Sobreescribe destino sin preguntar
     "--no-overwrite", // Falla si el destino existe
     "--dry-run",      // -n: Simula la operación
     "--verbose"       // Muestra detalles de la operación
-  };
+  });
   // move.handler = MoveHandler;
   GeneralCommandLog(move);
 
@@ -124,13 +124,13 @@ void CreatedCommandData(){
   delete_cmd.default_name       = "delete";
   delete_cmd.minimun_positional = 1;
   delete_cmd.maximun_positional = 100;
-  delete_cmd.option_avaible = {
+  delete_cmd.option_avaible.insert(delete_cmd.option_avaible.end(),{
     "--recursive",  // -r: Elimina directorios y su contenido
     "--force",      // -f: Sin confirmación interactiva
     "--dry-run",    // -n: Muestra qué se eliminaría
     "--verbose",    // Muestra cada archivo eliminado
     "--match"       // Elimina solo entradas que coincidan con el patrón
-  };
+  });
   // delete_cmd.handler = DeleteHandler;
   GeneralCommandLog(delete_cmd);
 
@@ -148,7 +148,7 @@ void CreatedCommandData(){
   find.default_name       = "find";
   find.minimun_positional = 1;
   find.maximun_positional = 1;
-  find.option_avaible = {
+  find.option_avaible.insert(find.option_avaible.end(),{
     "--name",            // Busca por nombre (glob): test_*.cpp, *config*
     "--ext",             // Busca por extensión: cpp, .cpp (ambos válidos)
     "--type",            // Tipo: file, dir, symlink
@@ -159,7 +159,7 @@ void CreatedCommandData(){
     "--recursive",       // -r: Búsqueda recursiva (default: true)
     "--depth",           // Profundidad máxima
     "--no-hidden"        // Excluye archivos ocultos
-  };
+  });
   // find.handler = FindHandler;
   GeneralCommandLog(find);
 
@@ -177,10 +177,10 @@ void CreatedCommandData(){
   rename_cmd.default_name       = "rename";
   rename_cmd.minimun_positional = 2;
   rename_cmd.maximun_positional = 2;
-  rename_cmd.option_avaible = {
+  rename_cmd.option_avaible.insert(rename_cmd.option_avaible.end(),{
     "--force",    // -f: Sobreescribe si ya existe ese nombre
     "--dry-run"   // -n: Simula el renombrado
-  };
+  });
   // rename_cmd.handler = RenameHandler;
   GeneralCommandLog(rename_cmd);
 
@@ -196,10 +196,10 @@ void CreatedCommandData(){
   mkdir_cmd.default_name       = "mkdir";
   mkdir_cmd.minimun_positional = 1;
   mkdir_cmd.maximun_positional = 1;
-  mkdir_cmd.option_avaible = {
+  mkdir_cmd.option_avaible.insert(mkdir_cmd.option_avaible.end(),{
     "--parents",  // -p: Crea directorios intermedios si no existen
     "--verbose"   // Muestra cada directorio creado
-  };
+  });
   // mkdir_cmd.handler = MkdirHandler;
   GeneralCommandLog(mkdir_cmd);
 
@@ -217,10 +217,10 @@ void CreatedCommandData(){
   touch.default_name       = "touch";
   touch.minimun_positional = 1;
   touch.maximun_positional = 100;
-  touch.option_avaible = {
+  touch.option_avaible.insert(touch.option_avaible.end(),{
     "--no-create",  // Solo actualiza fecha si existe, no crea nuevo
     "--timestamp"   // Fecha ISO personalizada: 2024-06-01T12:00:00
-  };
+  });
   // touch.handler = TouchHandler;
   GeneralCommandLog(touch);
 }

@@ -12,7 +12,8 @@
 GroupToken parsing(const std::vector<Token>& token_raw){
   GroupToken token_clasificated;
   std::unordered_set<std::string> See_token;
-  
+
+
   //Tratamiento y verificacion de existencia 
   for(size_t pos = 0 ; pos < token_raw.size() ; pos++ ){
     const auto& individual_token = token_raw[pos];

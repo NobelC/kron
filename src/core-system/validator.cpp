@@ -3,6 +3,8 @@
 #include "error/error_hanlder.hpp"
 #include "option/option-implementation.hpp"
 #include "../../include/option/option-raw-metadata.hpp"
+#include "special-option/help-option.hpp"
+#include "special-option/version-option.hpp"
 #include "token/token-raw-metadata.hpp"
 #include <algorithm>
 #include <chrono>
@@ -78,8 +80,27 @@ bool ValidationGroupToken(GroupToken& group_raw){
   //En el parser ya se comprueba si el comando existe y el tokenizador se encarga de que exista un 
   //comando aunque este luego no sea validator
   const auto data_command = GetCommandData(group_raw.command.name);
-  
+
+  bool version = std::ranges::any_of(group_raw.options, [](const Token& t){
+        return t.name == "--version";
+      });
+  bool help_only = std::ranges::any_of(group_raw.options, [](const Token& t){
+        return t.name == "--help";
+      });
+
+  if(version){
+    VERSION_HANDLER();
+    return false;
+  }
+
+  if(help_only && data_command == nullptr){
+    HELP_HANDLER("empty");
+    return false;
+  }
+
+
   if(data_command == nullptr){
+    COMMAND_NOT_FOUND(group_raw.command.name);
     return false;
   }
   if(static_cast<int>(group_raw.positional.size()) < data_command->minimun_positional || 
@@ -175,6 +196,8 @@ bool ValidationGroupToken(GroupToken& group_raw){
       return static_cast<uint8_t>(GetOptionData(a.name)->category) <
              static_cast<uint8_t>(GetOptionData(b.name)->category);
       });
+  
+
 
   return true;
 }

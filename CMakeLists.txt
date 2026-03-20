@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.15)
 project(kron
     VERSION 0.1.0
-    DESCRIPTION "CLI multifuncional de manipulación de archivos"
+    DESCRIPTION "Kron is a multifunctional CLI tool for file manipulation and inspection."
     LANGUAGES CXX
 )
 
