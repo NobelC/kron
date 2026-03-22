@@ -1,5 +1,6 @@
 #include "../../include/option/option-raw-metadata.hpp"
 #include "../../include/option/option-implementation.hpp"
+#include "special-option/version-option.hpp"
 #include <algorithm>
 #include <any>
 #include <cctype>
@@ -15,7 +16,7 @@ void CreatedOptionData(){
   help.conflict_name   = {};
   help.data_type       = TypeDataReceived::NONE;
   help.category        = OptionCategory::GLOBAL;
-  //help.hanlder = HelpHandler;
+  help.hanlder = std::monostate{};
   GeneralOptionLog(help);
 
   OptionMetaData version;
@@ -24,7 +25,7 @@ void CreatedOptionData(){
   version.conflict_name   = {};
   version.data_type       = TypeDataReceived::NONE;
   version.category        = OptionCategory::GLOBAL;
-  // version.hanlder = VersionHandler;
+  version.hanlder = std::monostate{};
   GeneralOptionLog(version);
 
   OptionMetaData no_color;
@@ -33,7 +34,7 @@ void CreatedOptionData(){
   no_color.conflict_name   = {};
   no_color.data_type       = TypeDataReceived::NONE;
   no_color.category        = OptionCategory::GLOBAL;
-  // no_color.hanlder = std::monostate{};
+  no_color.hanlder = std::monostate{};
   GeneralOptionLog(no_color);
 
   OptionMetaData quiet;
@@ -42,7 +43,7 @@ void CreatedOptionData(){
   quiet.conflict_name   = { "--verbose" };
   quiet.data_type       = TypeDataReceived::NONE;
   quiet.category        = OptionCategory::GLOBAL;
-  // quiet.hanlder = std::monostate{};
+  quiet.hanlder = std::monostate{};
   GeneralOptionLog(quiet);
 
   OptionMetaData verbose;
@@ -51,7 +52,7 @@ void CreatedOptionData(){
   verbose.conflict_name   = { "--quiet" };
   verbose.data_type       = TypeDataReceived::NONE;
   verbose.category        = OptionCategory::GLOBAL;
-  // verbose.hanlder = std::monostate{};
+  verbose.hanlder = std::monostate{};
   GeneralOptionLog(verbose);
 
   OptionMetaData dry_run;
@@ -60,7 +61,7 @@ void CreatedOptionData(){
   dry_run.conflict_name   = {};
   dry_run.data_type       = TypeDataReceived::NONE;
   dry_run.category        = OptionCategory::MANIPULATION;
-  // dry_run.hanlder = std::monostate{};
+  dry_run.hanlder = std::monostate{};
   GeneralOptionLog(dry_run);
 
   OptionMetaData output;

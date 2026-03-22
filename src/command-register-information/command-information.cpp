@@ -84,7 +84,7 @@ void CreatedCommandData(){
     "--preserve",       // -p: Preserva metadatos: fechas, permisos
     "--dry-run",        // -n: Muestra qué se copiaría sin ejecutar
     "--verbose",         // Muestra cada archivo copiado
-    "--fields",
+    "--filter",
     "--update",
   });
   copy.handler = COPY_HANLDER;

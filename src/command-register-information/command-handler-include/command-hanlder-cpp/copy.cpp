@@ -66,15 +66,14 @@ namespace {
 
     for(const auto& entry : entries_origin){
       std::filesystem::path path = destinatary_dirs.path() /  std::filesystem::relative(entry.path(), origin_dirs.path());
-        
-        if(collect_option.contains("--no-overwrite") && std::filesystem::exists(path)){
-          std::cout << std::format("[STOP] Process stopped; the entry {} already exists in the directory\n",
-              path.filename().string());
-          return;
-        }
+      if(collect_option.contains("--no-overwrite") && std::filesystem::exists(path)){
+        std::cout << std::format("[STOP] Process stopped; the entry {} already exists in the directory\n",
+        path.filename().string());
+        return;
+      }
 
         if(std::filesystem::exists(path) && !repeat && 
-        (!collect_option.contains("--force") || !collect_option.contains("--skip-existing"))){
+        (!collect_option.contains("--force") && !collect_option.contains("--skip-existing"))){
           int option = 0;
           while(option == 0){
             std::cout << std::format("The entry {} already exists\n", path.filename().string());
@@ -113,14 +112,31 @@ namespace {
             }
         }
       }
+
+      std::filesystem::path parent_path = path.parent_path();
+      if(!std::filesystem::exists(parent_path)){
+        std::filesystem::create_directories(parent_path);
+      }
+
       if(std::filesystem::is_directory(entry.path())){
         if(copy_option == std::filesystem::copy_options::skip_existing || 
             copy_option == std::filesystem::copy_options::overwrite_existing ||
             copy_option == std::filesystem::copy_options::none){
+          if(collect_option.contains("--verbose")) 
+          { 
+            std::cout << std::format("[CREATE DIR] : {}\n",path.filename().string() );
+          }
           std::filesystem::create_directory(path);
           continue;
         }
         if(copy_option == std::filesystem::copy_options::update_existing){
+          
+          if(collect_option.contains("--verbose")) 
+          {
+            std::cout << std::format("[UPDATE DIR] : {}\n",path.filename().string() );
+          }
+
+
           std::filesystem::remove_all(path);
           std::filesystem::create_directory(path);
           continue;
@@ -128,19 +144,38 @@ namespace {
       }
       if(std::filesystem::is_symlink(entry.path())){
         if(copy_option == std::filesystem::copy_options::skip_existing){
+          if(collect_option.contains("--verbose")) 
+          {
+            std::cout << std::format("[SKIP DIR] : {}\n",path.filename().string() );
+          }
+
           continue;
         }
         if(copy_option == std::filesystem::copy_options::update_existing || 
             copy_option == std::filesystem::copy_options::overwrite_existing){
+          if(collect_option.contains("--verbose")) 
+          {
+            std::cout << std::format("[UPDATE SYMLINK] : {}\n",path.filename().string() );
+          }
+
           std::filesystem::remove(path);
           std::filesystem::copy_symlink(entry.path(), path);
           continue;
+        }
+        if(collect_option.contains("--verbose")) 
+        {
+          std::cout << std::format("[CREATE SYMLINK] : {}\n",path.filename().string() );
         }
 
         std::filesystem::copy_symlink(entry.path(),path);
         continue;
       } 
       if(std::filesystem::is_regular_file(entry.path())){
+          if(collect_option.contains("--verbose")) 
+          {
+            std::cout << std::format("[COPY FILE] : {}\n",path.filename().string() );
+          }
+
         std::filesystem::copy_file(entry.path() , path, copy_option);
       }
   }}
@@ -184,6 +219,9 @@ void COPY_HANLDER(const GroupToken& token_group){
       std::cout << std::format("[DRY-RUN] CREATE DIR : {}\n", destinatary_dirs.path().filename().string());
     }
     else{
+      if(collect_option.contains("--verbose")){
+        std::cout << std::format("[CREATE DIR] : {}\n", destinatary_dirs.path().filename().string());
+      }
       std::filesystem::create_directory(destinatary_dirs);
     }
   }
