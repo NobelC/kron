@@ -157,15 +157,12 @@ void COPY_HANLDER(const GroupToken& token_group){
   }
   dirs_name_queque.emplace(origin_dirs);
   std::vector<std::filesystem::directory_entry> dirs_entry;
-  size_t max_thread = std::thread::hardware_concurrency() > MAX_THREAD ? MAX_THREAD : std::thread::hardware_concurrency();
-  size_t min_thread = token_group.positional.empty() ? 1 : token_group.positional.size();
-  size_t n_thread = std::min(min_thread,max_thread);
   std::mutex security_dirs_name;
   std::mutex security_entry_data;
   std::vector<std::thread> threads;
-  threads.reserve(n_thread);
+  threads.reserve(MAX_THREAD);
   if(collect_option.contains("--recursive")){
-    for(size_t i = 0 ; i < n_thread ; i++ ){
+    for(size_t i = 0 ; i < MAX_THREAD ; i++ ){
       threads.emplace_back([&]{
           bool not_empty_queque = true;
 
