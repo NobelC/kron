@@ -44,7 +44,7 @@ kron <command> [options] [arguments]
 |---------|-------------|--------|
 | `list [path]` | List directory contents | ✅ |
 | `inspect <path>...` | Show full file/directory metadata | ✅ |
-| `copy <src> <dst>` | Copy files or directories | 🔧 |
+| `copy <src> <dst>` | Copy files or directories | ✅ |
 | `move <src> <dst>` | Move or rename | 🔧 |
 | `delete <path>...` | Delete files or directories | 🔧 |
 | `find <directory>` | Search by combinable criteria | 🔧 |
