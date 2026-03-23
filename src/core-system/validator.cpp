@@ -105,11 +105,22 @@ bool ValidationGroupToken(GroupToken& group_raw){
   }
   if(static_cast<int>(group_raw.positional.size()) < data_command->minimun_positional || 
       static_cast<int>(group_raw.positional.size()) > data_command->maximun_positional){
-    INCORRECT_NUMBER_OF_POSITIONAL_NUMBER(data_command->default_name, 
+    if(data_command->default_name == "--copy" && group_raw.positional.size() == 1){
+      auto temp = group_raw.positional.front();
+      group_raw.positional.clear();
+      group_raw.positional.emplace_back(Token{
+          .type = TypeToken::POSITIONAL,
+          .name = "",
+          .value= "",
+          });
+      group_raw.positional.emplace_back(temp);
+    }else{
+      INCORRECT_NUMBER_OF_POSITIONAL_NUMBER(data_command->default_name, 
         static_cast<int>(group_raw.positional.size()), 
         data_command->minimun_positional, 
         data_command->maximun_positional);
-    return false;
+      return false;
+    }
   }
 
 

@@ -157,7 +157,7 @@ namespace {
     else {
       group*  gp = getgrgid(stat_path.st_gid);
       gp_name  = gp ? gp->gr_name : "UNKNOWN";
-      cache_group[stat_path.st_gid] = gp_name;
+      cache_group[stat_path.st_gid];
     }
     std::string name_cut = path.path().filename().string().size() > 30
       ? path.path().filename().string().substr(0, 20) + " ..." + path.path().extension().string()
@@ -255,7 +255,6 @@ void INSPECT_HANDLER(const GroupToken& token_group){
   std::vector<std::string> dirs_name;
   dirs_name.reserve(token_group.positional.size());
 
-
   if(token_group.positional.empty()){
     dirs_name.emplace_back(std::filesystem::current_path().string());
     dirs_name_queque.push(ID_entry{
@@ -301,7 +300,13 @@ void INSPECT_HANDLER(const GroupToken& token_group){
 
   for(size_t i = 0 ; i < n_thread ; i++){
     threads.emplace_back([&](){
-          while(!dirs_name_queque.empty()){
+          bool empty_queue = true;
+          
+          security_dirs_name.lock();
+          empty_queue = !dirs_name_queque.empty();
+          security_dirs_name.unlock();
+
+          while(empty_queue){
             security_dirs_name.lock();
             if(dirs_name_queque.empty()){
               security_dirs_name.unlock();
@@ -312,7 +317,7 @@ void INSPECT_HANDLER(const GroupToken& token_group){
             security_dirs_name.unlock();
             if(!std::filesystem::exists(path.father)){
             std::cerr << std::format(" [ERROR] '{}' does not exist or is not a valid directory.\n", 
-                path.son.path().filename().string());
+              path.son.path().filename().string());
               continue;
             }
             std::vector<std::filesystem::directory_entry> temp_entry_thread;
@@ -322,49 +327,49 @@ void INSPECT_HANDLER(const GroupToken& token_group){
               // FIX: stoi seguro — primero verificar si value está vacío
                 int depth_limit = 0;
                 if(!depth_it->value.empty()){
-                depth_limit = std::stoi(depth_it->value);
-              }
+                  depth_limit = std::stoi(depth_it->value);
+                }
 
-              for(auto entry = std::filesystem::recursive_directory_iterator(path.son.path(), option_iterator);
-                entry != std::filesystem::recursive_directory_iterator();
-                ++entry)
-              {
-                if(entry.depth() <= depth_limit){
+                for(auto entry = std::filesystem::recursive_directory_iterator(path.son.path(), option_iterator);
+                  entry != std::filesystem::recursive_directory_iterator();
+                  ++entry)
+                {
+                    if(entry.depth() <= depth_limit){
+                      struct stat s;
+                      if(stat(entry->path().c_str(), &s) == 0){
+                        DirID id{ .device = s.st_dev, .inode = s.st_ino };
+                        if(!visited.contains(id)){
+                          visited.insert(id);
+                          temp_entry_thread.emplace_back(*entry);
+                        }
+                      }
+                    }
+                }
+              }
+            else{
+              for(const auto& entry : std::filesystem::directory_iterator(path.son.path(),option_iterator)){
+                if(!entry.is_directory()){
                   struct stat s;
-                  if(stat(entry->path().c_str(), &s) == 0){
-                    DirID id{ .device = s.st_dev, .inode = s.st_ino };
+                  if(stat(entry.path().c_str(), &s) == 0){
+                  DirID id{ .device = s.st_dev, .inode = s.st_ino };
                   if(!visited.contains(id)){
                     visited.insert(id);
-                    temp_entry_thread.emplace_back(*entry);
+                    temp_entry_thread.emplace_back(entry);
                   }
                 }
               }
-            }
-          }
-        else{
-          for(const auto& entry : std::filesystem::directory_iterator(path.son.path(),option_iterator)){
-            if(!entry.is_directory()){
-              struct stat s;
-              if(stat(entry.path().c_str(), &s) == 0){
-                DirID id{ .device = s.st_dev, .inode = s.st_ino };
-                if(!visited.contains(id)){
-                  visited.insert(id);
-                  temp_entry_thread.emplace_back(entry);
-                }
-              }
-            }
-            else{
-              security_dirs_name.lock();
-              dirs_name_queque.push(ID_entry{
+              else{
+                security_dirs_name.lock();
+                dirs_name_queque.push(ID_entry{
                   .father = path.father,
                   .son = entry
-                  });
-              security_dirs_name.unlock();
-              temp_entry_thread.emplace_back(entry);
+                });
+                security_dirs_name.unlock();
+                temp_entry_thread.emplace_back(entry);
+              }
             }
           }
-        }
-    } 
+        } 
     else {
       for(const auto& entry : std::filesystem::directory_iterator(path.son.path(),option_iterator)){
         temp_entry_thread.emplace_back(entry);

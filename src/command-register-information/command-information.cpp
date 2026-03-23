@@ -83,9 +83,11 @@ void CreatedCommandData(){
     "--skip-existing",  // Omite archivos que ya existen en destino
     "--preserve",       // -p: Preserva metadatos: fechas, permisos
     "--dry-run",        // -n: Muestra qué se copiaría sin ejecutar
-    "--verbose"         // Muestra cada archivo copiado
+    "--verbose",         // Muestra cada archivo copiado
+    "--filter",
+    "--update",
   });
-  // copy.handler = CopyHandler;
+  copy.handler = COPY_HANLDER;
   GeneralCommandLog(copy);
 
   // --------------------------------------------------------------------------
