@@ -1,0 +1,16 @@
+build/
+bin/
+out/
+
+*.o 
+*.obj
+*.a
+*.lib
+*.so
+*.dll
+*.exe
+*.dylib
+
+.clangd/
+.cache/
+
