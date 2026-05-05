@@ -16,6 +16,7 @@ add_executable(kron_tests
     PARSING_TEST.cpp 
     VALIDATION_TEST.cpp
     EXECUTOR_TEST.cpp
+    SPEED_TEST_LIST.cpp
 )
 
 # Linkear contra la lógica de tu proyecto y GTest
