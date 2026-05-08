@@ -3,20 +3,6 @@
 #include "command-handler-include/command-hanlder-include.hpp"
 
 void CreatedCommandData(){
-  // ============================================================================
-  // TIER: kron-basic
-  // ============================================================================
-
-  // --------------------------------------------------------------------------
-  // Comando: list
-  // --------------------------------------------------------------------------
-  /*
-   * Lista el contenido de un directorio. Equivalente a `ls` pero con control 
-   * explícito sobre el formato y los campos.
-   * 
-   * Uso: kron list [ruta]
-   * Default: directorio actual
-   */
   CommandMetaData list;
   list.default_name       = "list";
   list.minimun_positional = 0;

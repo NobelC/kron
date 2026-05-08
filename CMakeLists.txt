@@ -48,7 +48,7 @@ configure_file(
 )
 
 # 4. El Ejecutable Principal
-add_executable(kron src/kron-main.cpp)
+add_executable(kron src/kls-main.cpp)
 target_link_libraries(kron PRIVATE kron_core)
 
 # --- 5. INFRAESTRUCTURA DE TESTS (MODIFICACIÓN AQUÍ) ---

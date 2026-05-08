@@ -37,20 +37,6 @@ void print_table_header() {
     std::cout << std::format("  {}\n", std::string(W_OPT + W_ALIAS + W_TYPE + W_DESC + 3, '-'));
 }
 
-// ─── FLAGS GLOBALES ───────────────────────────────────────────────────────────
-
-void help_global_flags() {
-    print_section("GLOBAL FLAGS");
-    std::cout << "  Applicable to all commands without exception.\n";
-    print_table_header();
-    print_row("--help",     "-h", "NONE",   "Show detailed help for the command");
-    print_row("--version",  "-v", "NONE",   "Show binary version");
-    print_row("--no-color", "—",  "NONE",   "Disable ANSI colors in output");
-    print_row("--quiet",    "-q", "NONE",   "Errors only, no informational output");
-    print_row("--dry-run",  "-n", "NONE",   "Simulate without executing (destructive commands)");
-    print_row("--output",   "-o", "STRING", "Format: plain | json | csv");
-}
-
 // ─── NIVEL BÁSICO ─────────────────────────────────────────────────────────────
 
 void help_list() {
@@ -88,8 +74,7 @@ void help_list() {
 
 // ─── HANDLER ──────────────────────────────────────────
 void HELP_HANDLER(std::string_view option_help) {
-    if (option_help == "empty") {
-        help_global_flags();
+    if (option_help == "empty") { 
         help_list();
         return;
     }
