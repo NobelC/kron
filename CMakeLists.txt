@@ -26,7 +26,7 @@ set(CORE_SOURCES
     src/error-register-information/error_hanlder.cpp
     src/option-register-information/option-get-option.cpp
     src/option-register-information/option-information.cpp
-    src/option-register-information/special-option/help-hanldler.cpp
+    src/option-register-information/special-option/help-handler.cpp
     src/option-register-information/special-option/version-handler.cpp
     src/command-register-information/command-handler-include/command-hanlder-cpp/list.cpp
 )

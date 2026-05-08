@@ -94,9 +94,11 @@ bool ValidationGroupToken(GroupToken &group_raw) {
   bool version = std::ranges::any_of(group_raw.options, [](const Token &t) {
     return t.name == "--version" || t.name == "-v";
   });
+  /*
   bool help_only = std::ranges::any_of(group_raw.options, [](const Token &t) {
     return t.name == "--help" || t.name == "-h";
   });
+  */
 
   if (version) {
     VERSION_HANDLER();

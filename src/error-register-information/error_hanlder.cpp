@@ -45,7 +45,7 @@ void OPTION_CONFLICT_WITH(std::string_view trigger){
   std::cerr << std::format("\n  [ERROR] Option '{}' conflicts with another provided option.\n\n", trigger);
 }
 
-void INCORRECT_NUMBER_OF_POSITIONAL_NUMBER( std::string_view command, const int& number, const int& min){
+void INCORRECT_NUMBER_OF_POSITIONAL_NUMBER( std::string_view command, const int& number, const int& /*min*/){
   std::cerr << std::format("\n  [ERROR] Wrong number of arguments for command '{}'.\n\n", command);
   std::cerr << std::format("  Provided : {}\n", number);
   std::cerr << std::format("  Maximum  : 1\n\n");
