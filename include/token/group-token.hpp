@@ -3,11 +3,11 @@
 #include <vector>
 
 struct GroupToken{
-  Token command;
   std::vector<Token> options;
   std::vector<Token> positional;
+  bool is_valid = true;
 
   [[nodiscard]] bool empty() const{
-    return options.empty() && positional.empty() && command.name.empty();
+    return options.empty() && positional.empty();
   }
 };

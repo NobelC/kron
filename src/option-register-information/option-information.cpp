@@ -204,6 +204,12 @@ void CreatedOptionData() {
                                                   const FileEntry &b) {
         return std::tie(a.extension, a.name) < std::tie(b.extension, b.name);
       });
+    } else if (criteria == "severity") {
+      std::ranges::sort(filter_contex.entries, [](const FileEntry &a,
+                                                  const FileEntry &b) {
+        // Higher severity first (assuming health alerts are ranked)
+        return a.health.size() > b.health.size(); 
+      });
     }
   });
   GeneralOptionLog(sort);
@@ -249,43 +255,72 @@ void CreatedOptionData() {
   stats.hanlder = std::monostate{};
   GeneralOptionLog(stats);
 
-  // --- MANIPULACIÓN Y CREACIÓN (STUBS) ---
+  // --- SEGURIDAD ---
 
-  OptionMetaData dry_run;
-  dry_run.normalized_name = "--dry-run";
-  dry_run.alias_name = "-n";
-  dry_run.category = OptionCategory::MANIPULATION;
-  dry_run.hanlder = std::monostate{};
-  GeneralOptionLog(dry_run);
+  OptionMetaData health;
+  health.normalized_name = "--health";
+  health.category = OptionCategory::PRESENTATION;
+  health.hanlder = std::monostate{};
+  GeneralOptionLog(health);
 
-  OptionMetaData force;
-  force.normalized_name = "--force";
-  force.alias_name = "-f";
-  force.conflict_name = {"--no-overwrite", "--skip-existing"};
-  force.category = OptionCategory::MANIPULATION;
-  GeneralOptionLog(force);
+  OptionMetaData no_health;
+  no_health.normalized_name = "--no-health";
+  no_health.category = OptionCategory::PRESENTATION;
+  no_health.hanlder = std::monostate{};
+  GeneralOptionLog(no_health);
 
-  OptionMetaData parents;
-  parents.normalized_name = "--parents";
-  parents.alias_name = "-p";
-  parents.category = OptionCategory::CREATION;
-  GeneralOptionLog(parents);
+  OptionMetaData only_alerts;
+  only_alerts.normalized_name = "--only-alerts";
+  only_alerts.category = OptionCategory::FILTERING;
+  only_alerts.hanlder = std::monostate{};
+  GeneralOptionLog(only_alerts);
 
-  OptionMetaData output;
-  output.normalized_name = "--output";
-  output.alias_name = "-o";
-  output.conflict_name = {};
-  output.category = OptionCategory::CREATION;
-  output.data_type = TypeDataReceived::STRING;
-  output.hanlder = std::monostate{};
-  GeneralOptionLog(output);
+  OptionMetaData attack_surface;
+  attack_surface.normalized_name = "--attack-surface";
+  attack_surface.category = OptionCategory::PRESENTATION;
+  attack_surface.hanlder = std::monostate{};
+  GeneralOptionLog(attack_surface);
 
-  OptionMetaData size_gt;
-  size_gt.normalized_name = "--size-gt";
-  size_gt.alias_name = "";
-  size_gt.conflict_name = {};
-  size_gt.category = OptionCategory::FILTERING;
-  size_gt.data_type = TypeDataReceived::SIZE;
-  size_gt.hanlder = std::monostate{};
-  GeneralOptionLog(size_gt);
+  OptionMetaData alerts_first;
+  alerts_first.normalized_name = "--alerts-first";
+  alerts_first.category = OptionCategory::SORTING;
+  alerts_first.hanlder = std::monostate{};
+  GeneralOptionLog(alerts_first);
+
+  OptionMetaData security_report;
+  security_report.normalized_name = "--security-report";
+  security_report.category = OptionCategory::PRESENTATION;
+  security_report.hanlder = std::monostate{};
+  GeneralOptionLog(security_report);
+
+  OptionMetaData immutable;
+  immutable.normalized_name = "--immutable";
+  immutable.category = OptionCategory::PRESENTATION;
+  immutable.hanlder = std::monostate{};
+  GeneralOptionLog(immutable);
+
+  OptionMetaData setuid_tree;
+  setuid_tree.normalized_name = "--setuid-tree";
+  setuid_tree.category = OptionCategory::COLLECTION;
+  setuid_tree.hanlder = std::monostate{};
+  GeneralOptionLog(setuid_tree);
+
+  OptionMetaData timeline;
+  timeline.normalized_name = "--timeline";
+  timeline.category = OptionCategory::PRESENTATION;
+  timeline.hanlder = std::monostate{};
+  GeneralOptionLog(timeline);
+
+  OptionMetaData min_severity;
+  min_severity.normalized_name = "--min-severity";
+  min_severity.category = OptionCategory::FILTERING;
+  min_severity.data_type = TypeDataReceived::STRING;
+  min_severity.hanlder = std::monostate{};
+  GeneralOptionLog(min_severity);
+
+  OptionMetaData only_anomalies;
+  only_anomalies.normalized_name = "--only-anomalies";
+  only_anomalies.category = OptionCategory::FILTERING;
+  only_anomalies.hanlder = std::monostate{};
+  GeneralOptionLog(only_anomalies);
 }

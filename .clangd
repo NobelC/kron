@@ -55,8 +55,6 @@ InlayHints:
   DeducedTypes: true
   # Muestra los tipos en Structured Bindings
   Designators: true
-  # Muestra tipos de retorno implícitos
-  FunctionReturnTypes: true
 # ============================================================================
 # NOTA PARA NEOVIM (nvim-lspconfig):
 # El error 'Limit' ocurría porque no es una opción válida en el archivo .clangd.

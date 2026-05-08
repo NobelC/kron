@@ -1,8 +1,8 @@
-# Security Policy
+# Security Policy for kls
 
 ## Supported versions
 
-kron is currently in active development. Only the latest version on `main` receives fixes.
+kls is currently in active development. Only the latest version on `main` receives fixes.
 
 | Version | Supported |
 |---------|-----------|
@@ -15,7 +15,7 @@ kron is currently in active development. Only the latest version on `main` recei
 
 **Do not open a public issue for security vulnerabilities.**
 
-If you find a security issue — especially in commands like `encrypt`, `decrypt`, `delete`, or anything that touches the filesystem destructively — report it privately.
+If you find a security issue in the analysis logic or metadata reporting, report it privately.
 
 Contact me directly via GitHub: [@QuantumCpp](https://github.com/QuantumCpp)
 

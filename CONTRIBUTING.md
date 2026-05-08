@@ -1,14 +1,10 @@
-# Contributing to kron
+# Contributing to kls
 
-kron is a personal project. I'm not looking for new commands or features that aren't already planned — those decisions are mine.
+kls is a security-focused directory listing tool.
 
-**What I do accept:**
-- Bug fixes
-- Performance improvements on existing code
-- Output/formatting improvements on existing commands
-- Extra functionality on already-implemented commands
-
-If it's not in one of those categories, it will likely be closed.
+## Philosophy
+- One tool, one responsibility.
+- Security-first visibility.
 
 ---
 
@@ -38,14 +34,14 @@ What is the error or unexpected behavior.
 
 **Command executed**
 ```
-kron <command> [options] [args]
+kls [options] [args]
 ```
 
 **Output received**
 Paste the actual output or error message.
 
 **Expected behavior**
-What you expected kron to do instead.
+What you expected kls to do instead.
 
 **System**
 OS and compiler version.

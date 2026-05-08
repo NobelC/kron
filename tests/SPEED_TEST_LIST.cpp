@@ -1,7 +1,6 @@
 #include <gtest/gtest.h>
 #include "../include/core-hpp/tokenization.hpp"
 #include "../include/core-hpp/parsing.hpp"
-#include "../include/command/command-implementation.hpp"
 #include "../include/core-hpp/validator.hpp"
 #include "../include/option/option-implementation.hpp"
 #include "../include/core-hpp/executor.hpp"
@@ -26,7 +25,6 @@ class ExecutorSuite : public ::testing::Test {
 protected:
     static void SetUpTestSuite() {
         CreatedOptionData();
-        CreatedCommandData();
     }
 
     BenchmarkMetrics run_benchmark(const std::vector<std::string>& input) {
@@ -38,7 +36,6 @@ protected:
 
         struct rusage usage_start, usage_end;
         
-        // Disable stdout for benchmark to avoid IO noise (optional, but requested capture earlier)
         testing::internal::CaptureStdout();
 
         auto start = std::chrono::high_resolution_clock::now();
@@ -65,7 +62,7 @@ protected:
             .wall_time_ms = wall_time,
             .user_time_ms = user_time,
             .system_time_ms = sys_time,
-            .max_rss_kb = usage_end.ru_maxrss, // maxrss is global for the process life, but useful as a peak
+            .max_rss_kb = usage_end.ru_maxrss,
             .voluntary_context_switches = usage_end.ru_nvcsw - usage_start.ru_nvcsw,
             .involuntary_context_switches = usage_end.ru_nivcsw - usage_start.ru_nivcsw,
             .major_page_faults = usage_end.ru_majflt - usage_start.ru_majflt
@@ -88,26 +85,24 @@ protected:
     }
 };
 
-TEST_F(ExecutorSuite, SpeedTest_RecursiveList_Home) {
-    // We use a directory that is likely to have many files to make metrics meaningful.
-    // WARNING: This might be slow if the home directory is huge.
-    std::vector<std::string> input = {"list", "--recursive", "/home/nobel/Documents/ollama/"}; 
+TEST_F(ExecutorSuite, SpeedTest_RecursiveList) {
+    std::vector<std::string> input = {"--recursive", "."}; 
     
-    std::cout << "[ INFO ] Starting benchmark for: kron list --recursive\n";
+    std::cout << "[ INFO ] Starting benchmark for: kls --recursive\n";
     
     auto metrics = run_benchmark(input);
-    print_metrics("kron list --recursive ", metrics);
+    print_metrics("kls --recursive ", metrics);
     
     SUCCEED();
 }
 
 TEST_F(ExecutorSuite, SpeedTest_LargeList_LongFormat) {
-    std::vector<std::string> input = {"list", "--all", "--long", "/home/nobel/Documents/ollama/"};
+    std::vector<std::string> input = {"--all", "--long", "."};
     
-    std::cout << "[ INFO ] Starting benchmark for: kron list --all --long \n";
+    std::cout << "[ INFO ] Starting benchmark for: kls --all --long \n";
     
     auto metrics = run_benchmark(input);
-    print_metrics("kron list --all --long ", metrics);
+    print_metrics("kls --all --long ", metrics);
     
     SUCCEED();
 }

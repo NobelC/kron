@@ -5,19 +5,12 @@
 #include <string_view>
 
 // ─── Column widths ────────────────────────────────────────────────────────────
-// OPT  : option name  (--long-option-name)
-// ALIAS: short alias  (-x)
-// TYPE : value type   (NONE | STRING | INT)
-// DESC : description  (rest of the line)
-// ─────────────────────────────────────────────────────────────────────────────
 static constexpr int W_OPT   = 26;
 static constexpr int W_ALIAS =  8;
 static constexpr int W_TYPE  = 10;
 static constexpr int W_DESC  = 48;
 
 namespace {
-
-// ─── Helpers de formato ───────────────────────────────────────────────────────
 
 void print_section(std::string_view title) {
     std::cout << std::format("\n{}\n{}\n", title, std::string(title.size(), '-'));
@@ -37,50 +30,41 @@ void print_table_header() {
     std::cout << std::format("  {}\n", std::string(W_OPT + W_ALIAS + W_TYPE + W_DESC + 3, '-'));
 }
 
-// ─── NIVEL BÁSICO ─────────────────────────────────────────────────────────────
-
-void help_list() {
-    print_section("kron list [path]");
-    std::cout << "  Lists directory contents with explicit control over format and fields.\n"
-              << "  Advanced equivalent of ls.\n";
+void help_kls() {
+    print_section("kls [path] [options]");
+    std::cout << "  \"What's in here, and should I be worried?\"\n"
+              << "  Directory listing with a focus on security and auditing.\n";
 
     print_section("  Positionals");
     std::cout << std::format("  {:<20} {}\n", "[path]", "Directory to list. Default: current directory");
 
-    print_section("  Options");
+    print_section("  General Options");
     print_table_header();
-    print_row("--all",        "-a", "NONE",   "Include hidden entries (.gitignore)");
-    print_row("--long",       "-l", "NONE",   "Long format: permissions, size, date");
-    print_row("--sort",       "—",  "STRING", "Sort by: name | size | modified | type");
-    print_row("--reverse",    "-r", "NONE",   "Reverse sort order");
-    print_row("--dirs-first", "—",  "NONE",   "Directories before files");
-    print_row("--filter",     "—",  "STRING", "Filter by glob: *.cpp, test_*");
-    print_row("--no-header",  "—",  "NONE",   "Omit table header");
+    print_row("--all",        "-a", "NONE",   "Include hidden entries");
+    print_row("--recursive",  "-r", "NONE",   "Recurse into subdirectories");
+    print_row("--long",       "-l", "NONE",   "Long format with metadata");
+    print_row("--sort",       "—",  "STRING", "Sort by: name|size|date|severity");
+    print_row("--reverse",    "—",  "NONE",   "Reverse sort order");
+
+    print_section("  Security Options");
+    print_table_header();
+    print_row("--health",     "—",  "NONE",   "Enable security analysis (Default)");
+    print_row("--no-health",  "—",  "NONE",   "Disable security analysis");
+    print_row("--only-alerts","—",  "NONE",   "Show only files with security risks");
+    print_row("--attack-surface","—", "NONE", "Show attack surface summary");
+    print_row("--security-report","—","NONE", "Consolidated report at the end");
+    print_row("--alerts-first","—", "NONE",   "Show risky files at the top");
 
     print_section("  Examples");
-    std::cout << "  kron list\n"
-              << "  kron list ./src\n"
-              << "  kron list ./src --long --sort size --reverse\n"
-              << "  kron list --all --filter \"*.cpp\" --dirs-first\n"
-              << "  kron list --output json\n";
+    std::cout << "  kls\n"
+              << "  kls ./src -l\n"
+              << "  kls --only-alerts\n"
+              << "  kls --sort=severity\n"
+              << "  kls --attack-surface\n";
 }
 
-}
+} // namespace
 
-
-
-
- // namespace
-
-// ─── HANDLER ──────────────────────────────────────────
 void HELP_HANDLER(std::string_view option_help) {
-    if (option_help == "empty") { 
-        help_list();
-        return;
-    }
-
-    const auto& cmd = option_help;
-
-    if (cmd == "list")          { help_list();          return;}
-    return;
+    help_kls();
 }

@@ -1,31 +1,53 @@
-# kron
+# kls (Security-ls)
 
-A multifunctional CLI tool for file manipulation and inspection, built for developers and power users.  
-Written in **modern C++20** using exclusively the STL. Zero external dependencies.
+**"What's in here, and should I be worried?"**
 
----
-
-## What is kron?
-
-kron is a blend of classic shell commands (`list`, `inspect`, `watch`, `delete`, `find`) with advanced operations for analysis, indexing, snapshots, and filesystem automation. Its core is **deep filesystem visibility**.
+`kls` is a directory listing tool designed under the Unix philosophy: one tool, one responsibility, done to perfection. Unlike `exa` (colors) or `lsd` (icons), `kls` focuses on **security and risk visibility**.
 
 ---
 
-## Build
+## Philosophy
+`kls` doesn't try to be an editor or a network monitor. Its sole purpose is to audit your directories and report security anomalies in real-time.
+
+- ✅ **Read-only. Report-only.**
+- ❌ No file copying.
+- ❌ No file deletion.
+- ❌ Non-destructive.
+
+## Key Features
+- **Health-check by default**: Every listing includes a security health analysis.
+- **Risk Detection**: Identifies SUID/SGID files, world-writable permissions, broken symlinks, and Linux capabilities.
+- **Attack Surface Analysis**: A consolidated summary of the total risk for the directory.
+- **Timeline Analysis**: Detects timestamp anomalies (ctime < mtime) and files modified in the future.
+
+## Quick Start
+
 ```bash
-cmake -B build
-cmake --build build
+kls                # Listing with security analysis by default
+kls -l             # Long format with security metadata
+kls --only-alerts  # Show only files with security risks
+kls --sort=severity # Most dangerous files first
 ```
 
-To install globally via symlink:
+## Installation
+
+### Requirements
+- **CMake 3.15+**
+- **C++23** compatible compiler
+
+### Build
 ```bash
-sudo ln -sf $(pwd)/build/kron /usr/local/bin/kron
+mkdir build && cd build
+cmake ..
+make
 ```
 
-Requirements: **CMake 3.15+**, compiler with **C++20** support.
+To install globally:
+```bash
+sudo ln -sf $(pwd)/build/kls /usr/local/bin/kls
+```
 
 ---
 
 ## License
-
 MIT

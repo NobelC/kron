@@ -1,5 +1,4 @@
 #include "../../include/core-hpp/parsing.hpp"
-#include "../../include/command/command-implementation.hpp"
 #include "../../include/error/error_hanlder.hpp"
 #include "../../include/option/option-implementation.hpp"
 #include "../../include/option/option-raw-metadata.hpp"
@@ -17,21 +16,6 @@ GroupToken parsing(const std::vector<Token> &token_raw) {
   for (size_t pos = 0; pos < token_raw.size(); pos++) {
     const auto &individual_token = token_raw[pos];
 
-    // Comprobar si existe un comando y si es valido :
-    if (individual_token.type == TypeToken::COMMAND) {
-      const auto &data_token = GetCommandData(individual_token.name);
-      if (data_token == nullptr) {
-        COMMAND_NOT_FOUND(individual_token.name);
-        return {};
-      };
-      token_clasificated.command = Token{
-          .type = TypeToken::COMMAND,
-          .name = individual_token.name,
-          .value = "",
-      };
-      continue;
-    }
-
     // Comprobar si una opcion existe
     if (individual_token.type == TypeToken::OPTION_NOT_NORMALIZED) {
       // opciones largas
@@ -42,7 +26,8 @@ GroupToken parsing(const std::vector<Token> &token_raw) {
           const auto &data_token = GetOptionData(individual_token.name);
           if (data_token == nullptr) {
             OPTION_NOT_FOUND(individual_token.name);
-            return {};
+            token_clasificated.is_valid = false;
+            return token_clasificated;
           }
           // Para opciones largas sin igual pero que requieren valor
           if (data_token->data_type != TypeDataReceived::NONE) {
@@ -58,7 +43,8 @@ GroupToken parsing(const std::vector<Token> &token_raw) {
               continue;
             } else {
               OPTION_NEED_VALUE(individual_token.name, data_token->data_type);
-              return {};
+              token_clasificated.is_valid = false;
+              return token_clasificated;
             }
           }
           token_clasificated.options.emplace_back(Token{
@@ -73,7 +59,8 @@ GroupToken parsing(const std::vector<Token> &token_raw) {
               GetOptionData(individual_token.name.substr(0, equal_pos));
           if (data_token == nullptr) {
             OPTION_NOT_FOUND(individual_token.name);
-            return {};
+            token_clasificated.is_valid = false;
+            return token_clasificated;
           }
           token_clasificated.options.emplace_back(Token{
               .type = TypeToken::OPTION_NORMALIZED,
@@ -92,7 +79,8 @@ GroupToken parsing(const std::vector<Token> &token_raw) {
         const auto &data_token = GetOptionData(flag);
         if (data_token == nullptr) {
           OPTION_NOT_FOUND(flag);
-          return {};
+          token_clasificated.is_valid = false;
+          return token_clasificated;
         }
         if (data_token->data_type != TypeDataReceived::NONE) {
           if (i + 1 < individual_token.name.size() &&
@@ -121,7 +109,8 @@ GroupToken parsing(const std::vector<Token> &token_raw) {
             break;
           } else {
             OPTION_NEED_VALUE(flag, data_token->data_type);
-            return {};
+            token_clasificated.is_valid = false;
+            return token_clasificated;
           }
         }
 

@@ -6,36 +6,24 @@ std::vector<Token> tokenization(const std::vector<std::string> &arguments) {
   std::vector<Token> argument_raw;
   argument_raw.reserve(arguments.size());
   bool only_positional = false;
-  int real_count = 0;
 
-  for (size_t i = 0; i < arguments.size(); i++) {
+  for (const auto& arg : arguments) {
 
-    if (arguments[i].empty() || arguments[i] == " ") {
-      continue;
-    }
-    real_count++;
-
-    // Register the first non-hyphenated element as the command
-    if (real_count == 1 && !arguments[i].starts_with("-") && !only_positional) {
-      argument_raw.emplace_back(Token{
-          .type = TypeToken::COMMAND,
-          .name = arguments[i],
-          .value = "",
-      });
+    if (arg.empty() || arg == " ") {
       continue;
     }
 
     // Detect the delimiter "--" that forces all subsequent arguments to be
     // treated as positional
-    if (arguments[i] == "--") {
+    if (arg == "--") {
       only_positional = true;
       continue;
     }
 
-    if (arguments[i] == "-") {
+    if (arg == "-") {
       argument_raw.emplace_back(Token{
           .type = TypeToken::POSITIONAL,
-          .name = arguments[i],
+          .name = arg,
           .value = "",
       });
     }
@@ -44,7 +32,7 @@ std::vector<Token> tokenization(const std::vector<std::string> &arguments) {
     if (only_positional) {
       argument_raw.emplace_back(Token{
           .type = TypeToken::POSITIONAL,
-          .name = arguments[i],
+          .name = arg,
           .value = "",
       });
       continue;
@@ -52,10 +40,10 @@ std::vector<Token> tokenization(const std::vector<std::string> &arguments) {
 
     // Identify and store options (starting with '-') that are not yet
     // normalized
-    if (arguments[i].starts_with("-")) {
+    if (arg.starts_with("-")) {
       argument_raw.emplace_back(Token{
           .type = TypeToken::OPTION_NOT_NORMALIZED,
-          .name = arguments[i],
+          .name = arg,
           .value = "",
       });
       continue;
@@ -64,7 +52,7 @@ std::vector<Token> tokenization(const std::vector<std::string> &arguments) {
     // Store remaining arguments as literal tokens
     argument_raw.emplace_back(Token{
         .type = TypeToken::LITERAL,
-        .name = arguments[i],
+        .name = arg,
         .value = "",
     });
   }

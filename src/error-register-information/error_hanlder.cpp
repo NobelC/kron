@@ -6,12 +6,12 @@
 
 void COMMAND_NOT_FOUND(std::string_view trigger){
   std::cerr << std::format("\n  [ERROR] Unknown command: '{}'\n", trigger);
-  std::cerr << std::format("  Run 'kron --help' to see available commands.\n\n");
+  std::cerr << std::format("  Run 'kls --help' to see available options.\n\n");
 }
 
 void OPTION_NOT_FOUND(std::string_view trigger){
   std::cerr << std::format("\n  [ERROR] Unknown option: '{}'\n", trigger);
-  std::cerr << std::format("  Run 'kron <command> --help' to see available options.\n\n");
+  std::cerr << std::format("  Run 'kls --help' to see available options.\n\n");
 }
 
 void OPTION_NEED_VALUE(std::string_view trigger, const TypeDataReceived& type_data){
@@ -30,23 +30,25 @@ void OPTION_NEED_VALUE(std::string_view trigger, const TypeDataReceived& type_da
     case TypeDataReceived::NONE:
       std::cerr << "(none — this should not happen)\n\n";
       break;
+    case TypeDataReceived::STRING:
+      std::cerr << "text        (e.g. \"value\")\n\n";
+      break;
   }
 }
 
 void OPTION_NOT_AVAIBLE_FOR_COMMAND(std::string_view trigger, std::string_view command){
   std::cerr << std::format("\n  [ERROR] Option '{}' is not available for command '{}'.\n", trigger, command);
-  std::cerr << std::format("  Run 'kron {} --help' to see supported options.\n\n", command);
+  std::cerr << std::format("  Run 'kls --help' to see supported options.\n\n");
 }
 
 void OPTION_CONFLICT_WITH(std::string_view trigger){
   std::cerr << std::format("\n  [ERROR] Option '{}' conflicts with another provided option.\n\n", trigger);
 }
 
-void INCORRECT_NUMBER_OF_POSITIONAL_NUMBER( std::string_view command, const int& number, const int& min, const int& max){
+void INCORRECT_NUMBER_OF_POSITIONAL_NUMBER( std::string_view command, const int& number, const int& min){
   std::cerr << std::format("\n  [ERROR] Wrong number of arguments for command '{}'.\n\n", command);
   std::cerr << std::format("  Provided : {}\n", number);
-  std::cerr << std::format("  Minimum  : {}\n", min);
-  std::cerr << std::format("  Maximum  : {}\n\n", max);
+  std::cerr << std::format("  Maximum  : 1\n\n");
 }
 
 void OPTION_REQUIERES_OPTION(std::string_view option,std::string_view requieres){

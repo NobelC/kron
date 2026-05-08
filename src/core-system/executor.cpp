@@ -1,19 +1,18 @@
 #include "../../include/core-hpp/executor.hpp"
 #include "../../include/token/group-token.hpp"
-#include "../../include/command/command-implementation.hpp"
+#include "../../src/command-register-information/command-handler-include/command-hanlder-include.hpp"
 #include "../../include/special-option/help-option.hpp"
 #include "../../include/token/token-raw-metadata.hpp"
 #include <algorithm>
 
 void executor(const GroupToken& token_group){
-  const auto& data_command = GetCommandData(token_group.command.name);
   bool helper_call = std::ranges::any_of(token_group.options, [](const Token& t){
-          return t.name == "--help";
+          return t.name == "--help" || t.name == "-h";
     });
 
   if(helper_call){
-    HELP_HANDLER(token_group.command.name);
+    HELP_HANDLER("kls");
     return;
   }
-  data_command->handler(token_group);
+  LIST_HANDLER(token_group);
 }
