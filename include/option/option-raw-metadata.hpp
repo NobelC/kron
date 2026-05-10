@@ -27,19 +27,13 @@ enum class TypeDataReceived : std::uint8_t {
 // ============================================================================
 
 enum class OptionCategory : std::uint8_t {
-  COLLECTION = 0, // Recolecta datos: --all, --recursive
-  FILTERING =
-      1, // Reduce el set: --filter, --no-hidden, --depth, --ext, --name, --type
-         //                --size-gt, --size-lt, --modified-after,
-         //                --modified-before
-  SORTING = 2,      // Ordena y agrupa: --sort, --reverse, --dirs-first
-  PRESENTATION = 3, // Formato de output: --long, --no-header, --output
-  MANIPULATION =
-      4, // Operaciones sobre paths: --force, --no-overwrite, --skip-existing
-         //                          --preserve, --dry-run, --match
-  CREATION = 5, // Creación de entradas: --parents, --timestamp
-  GLOBAL =
-      6, // Flags del sistema: --help, --version, --quiet, --verbose, --no-color
+  COLLECTION = 0, // Recolecta datos
+  FILTERING =1, // Reduce el set
+  SORTING = 2,      // Ordena y agrupa
+  PRESENTATION = 3, // Formato de output
+  MANIPULATION =4, // Operaciones sobre paths
+  CREATION = 5, // Creación de entradas
+  GLOBAL =6, // Flags del sistema
 };
 
 // ============================================================================
@@ -60,8 +54,8 @@ struct FileEntry {
   uint64_t size;  // 8 bytes
   mode_t mode;    // 4 bytes
   nlink_t nlinks; // 8 bytes (en x86_64)
-  uid_t uid;      // 4 bytes (NUEVO: Almacena el ID, no el nombre)
-  gid_t gid;      // 4 bytes (NUEVO: Almacena el ID, no el nombre)
+  uid_t uid;      // 4 bytes (Almacena el ID, no el nombre)
+  gid_t gid;      // 4 bytes (Almacena el ID, no el nombre)
 
   // 2. Flags de estado (Bitfields para ahorrar espacio)
   bool is_directory : 1;
@@ -83,8 +77,7 @@ struct FileEntry {
 
 struct FilterStruct {
   std::vector<FileEntry> &entries;
-  std::any context; // dato extra variable: glob, criterio de sort, profundidad,
-                    // fecha, tamaño
+  std::any context; // dato extra variable: glob, criterio de sort, profundidad,fecha, tamaño
 };
 
 // PRESENTATION

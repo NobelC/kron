@@ -165,8 +165,15 @@ void LongPrinter(const std::vector<FileEntry> &entries) {
     perms += (e.mode & S_IRUSR) ? "r" : "-";
     perms += (e.mode & S_IWUSR) ? "w" : "-";
     perms += (e.mode & S_IXUSR) ? "x" : "-";
+    
+    perms += (e.mode & S_IRGRP) ? "r" : "-";
+    perms += (e.mode & S_IWGRP) ? "w" : "-";
+    perms += (e.mode & S_IXGRP) ? "x" : "-";
 
-    // ... podrías expandir para grupo y otros ...
+    perms += (e.mode & S_IROTH) ? "r" : "-";
+    perms += (e.mode & S_IWOTH) ? "r" : "-";
+    perms += (e.mode & S_IXOTH) ? "r" : "-";
+
     std::string owner;
     std::string group_str;
     if (cache_owner.contains(e.uid)) {
