@@ -3,6 +3,7 @@
 #include "../include/core-hpp/parsing.hpp"
 #include "../include/option/option-implementation.hpp"
 
+namespace{
 // 1. Option parsing
 TEST(ParsingSuite, Options){
   CreatedOptionData();
@@ -40,4 +41,5 @@ TEST(ParsingSuite, Mixed){
   auto result_parsing = parsing(result);
   ASSERT_EQ(result_parsing.options.size(), 2);
   ASSERT_EQ(result_parsing.positional.size(), 1);
+}
 }

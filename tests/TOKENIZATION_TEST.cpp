@@ -1,6 +1,7 @@
 #include <gtest/gtest.h>
 #include "../include/core-hpp/tokenization.hpp"
 
+namespace{
 // 1. Literal tokens
 TEST(TokenizationSuite, IdentifyLiteral){
   // Case 1:
@@ -54,4 +55,5 @@ TEST(TokenizationSuite, SeparationToken){
   EXPECT_EQ(result[0].type, TypeToken::LITERAL);
   EXPECT_EQ(result[1].type, TypeToken::POSITIONAL);
   EXPECT_EQ(result[2].type, TypeToken::POSITIONAL);
+}
 }
