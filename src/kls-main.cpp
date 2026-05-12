@@ -4,7 +4,6 @@
 #include "../include/core-hpp/tokenization.hpp"
 #include "../include/core-hpp/validator.hpp"
 #include "../include/option/option-implementation.hpp"
-#include "../include/special-option/help-option.hpp"
 #include "../include/token/group-token.hpp"
 #include <string>
 #include <vector>

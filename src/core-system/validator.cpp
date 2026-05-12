@@ -7,9 +7,9 @@
 #include "special-option/version-option.hpp"
 #include <algorithm>
 #include <cctype>
-#include <chrono>
 #include <cstddef>
 #include <cstdint>
+#include <iomanip>
 #include <iterator>
 #include <ranges>
 #include <sstream>
@@ -21,22 +21,11 @@ bool DATE_VALIDATED(const std::string_view &date_str) {
   if (date_str.empty()) {
     return false;
   }
-  std::istringstream str_validated(std::string{date_str});
-  std::chrono::sys_days parser_date;
+  std::tm tm{};
+  std::istringstream str_validated{std::string(date_str)};
 
-  str_validated >> std::chrono::parse("%F", parser_date);
-
-  if (str_validated.fail()) {
-    return false;
-  }
-
-  std::chrono::year_month_day year_month_day(parser_date);
-
-  if (!year_month_day.ok()) {
-    return false;
-  }
-
-  return true;
+  str_validated >> std::get_time(&tm, "%Y-%m-%d");
+  return !str_validated.fail();
 }
 
 bool SIZE_VALIDATED(std::string_view size_str) {
