@@ -1,16 +1,32 @@
 include(FetchContent)
 
-# Download GoogleTest
 FetchContent_Declare(
   googletest
   URL https://github.com/google/googletest/archive/refs/heads/main.zip
 )
-
-# Force the use of the same runtime configuration
 set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 FetchContent_MakeAvailable(googletest)
 
-# Define the test executable
+# --- CONFIGURACIÓN DE HERRAMIENTAS ---
+
+option(ENABLE_SANITIZERS "Enable Address and Undefined Behavior Sanitizers" OFF)
+option(ENABLE_COVERAGE "Enable code coverage instrumentation" OFF)
+
+# Creamos una lista de flags para no repetir código
+set(SANITIZER_FLAGS "")
+if(ENABLE_SANITIZERS AND (CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang"))
+    set(SANITIZER_FLAGS -fsanitize=address,undefined -fno-omit-frame-pointer)
+    message(STATUS "Sanitizers enabled")
+endif()
+
+set(COVERAGE_FLAGS "")
+if(ENABLE_COVERAGE AND (CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang"))
+    set(COVERAGE_FLAGS --coverage -fprofile-arcs -ftest-coverage)
+    message(STATUS "Coverage instrumentation enabled")
+endif()
+
+# --- TARGET DE TESTS ---
+
 add_executable(kls_tests
     TOKENIZATION_TEST.cpp
     PARSING_TEST.cpp 
@@ -19,13 +35,14 @@ add_executable(kls_tests
     SPEED_TEST_LIST.cpp
 )
 
-# Add include directories for tests
+target_compile_options(kls_tests PRIVATE ${SANITIZER_FLAGS} ${COVERAGE_FLAGS} -g)
+target_link_options(kls_tests PRIVATE ${SANITIZER_FLAGS} ${COVERAGE_FLAGS})
+
 target_include_directories(kls_tests PRIVATE 
     ${PROJECT_SOURCE_DIR}/include
     ${PROJECT_BINARY_DIR}/generated
 )
 
-# Link against the project logic and GTest
 target_link_libraries(kls_tests 
     PRIVATE
     kls_core
@@ -33,6 +50,5 @@ target_link_libraries(kls_tests
     gtest
 )
 
-# Enable automatic test discovery for CTest
 include(GoogleTest)
 gtest_discover_tests(kls_tests)
