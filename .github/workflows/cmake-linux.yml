@@ -1,0 +1,44 @@
+name: CMake Linux CI
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+env:
+  BUILD_TYPE: Release
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        compiler: [gcc, clang]
+        include:
+          - compiler: gcc
+            cpp_comp: g++ 
+            c_comp: gcc
+          - compiler: clang
+            cpp_comp: clang++
+            c_comp: clang
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: Install System Dependencies
+      run: sudo apt-get update
+           sudo apt-get install -y build-essential
+    - name: Configure CMake
+      run: >
+        cmake -B ${{github.workspace}}/build 
+        -DCMAKE_CXX_COMPILER=${{matrix.cpp_comp}} 
+        -DCMAKE_C_COMPILER=${{matrix.c_comp}} 
+        -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
+        
+    - name: Build
+      run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}}
+
+    - name: Test
+      working-directory: ${{github.workspace}}/build
+      run: ctest -C ${{env.BUILD_TYPE}} --output-on-failure
+
