@@ -8,16 +8,21 @@ on:
 
 env:
   BUILD_TYPE: Release
+  # Soluciona la advertencia de Node.js 20
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
 jobs:
   build:
     runs-on: ubuntu-latest
+
     strategy:
+      # Evita que el fallo de Clang cancele el test de GCC
+      fail-fast: false
       matrix:
         compiler: [gcc, clang]
         include:
           - compiler: gcc
-            cpp_comp: g++ 
+            cpp_comp: g++
             c_comp: gcc
           - compiler: clang
             cpp_comp: clang++
@@ -25,20 +30,24 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
-    - name: Install System Dependencies
-      run: sudo apt-get update
-           sudo apt-get install -y build-essential
+
+    - name: Install Toolchain and Dependencies
+      run: |
+        sudo apt-get update
+        # Aseguramos que estén presentes las librerías necesarias para C++20
+        sudo apt-get install -y build-essential llvm clang libstdc++-12-dev
+
     - name: Configure CMake
       run: >
         cmake -B ${{github.workspace}}/build 
         -DCMAKE_CXX_COMPILER=${{matrix.cpp_comp}} 
         -DCMAKE_C_COMPILER=${{matrix.c_comp}} 
         -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
-        
+
     - name: Build
       run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}}
 
     - name: Test
       working-directory: ${{github.workspace}}/build
+      # Usamos --output-on-failure para ver el log real si sale error 100
       run: ctest -C ${{env.BUILD_TYPE}} --output-on-failure
-
