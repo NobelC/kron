@@ -21,7 +21,7 @@ struct BenchmarkMetrics {
     long major_page_faults;
 };
 
-class ExecutorSuite : public ::testing::Test {
+class SpeedSuite : public ::testing::Test {
 protected:
     static void SetUpTestSuite() {
         CreatedOptionData();
@@ -85,7 +85,7 @@ protected:
     }
 };
 
-TEST_F(ExecutorSuite, SpeedTest_RecursiveList) {
+TEST_F(SpeedSuite, SpeedTest_RecursiveList) {
     std::vector<std::string> input = {"--recursive", "."}; 
     
     std::cout << "[ INFO ] Starting benchmark for: kls --recursive\n";
@@ -96,7 +96,7 @@ TEST_F(ExecutorSuite, SpeedTest_RecursiveList) {
     SUCCEED();
 }
 
-TEST_F(ExecutorSuite, SpeedTest_LargeList_LongFormat) {
+TEST_F(SpeedSuite, SpeedTest_LargeList_LongFormat) {
     std::vector<std::string> input = {"--all", "--long", "."};
     
     std::cout << "[ INFO ] Starting benchmark for: kls --all --long \n";
