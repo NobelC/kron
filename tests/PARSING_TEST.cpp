@@ -21,6 +21,7 @@ TEST(ParsingSuite, Options){
 }
 
 // 2. Positional parsing (paths)
+// cppcheck-suppress syntaxError
 TEST(ParsingSuite, Positional){
   CreatedOptionData();
   

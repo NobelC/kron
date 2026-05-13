@@ -23,6 +23,7 @@ TEST(TokenizationSuite, IdentifyLiteral){
 }
 
 // 2. Options
+// cppcheck-suppress syntaxError
 TEST(TokenizationSuite, SortOptions){
   // Case 1:
   std::vector<std::string> input = {"--all"};

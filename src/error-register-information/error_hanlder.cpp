@@ -4,7 +4,7 @@
 #include <string_view>
 #include <format>
 
-void COMMAND_NOT_FOUND(std::string_view trigger){
+[[maybe_unused]] void COMMAND_NOT_FOUND(std::string_view trigger){
   std::cerr << std::format("\n  [ERROR] Unknown command: '{}'\n", trigger);
   std::cerr << std::format("  Run 'kls --help' to see available options.\n\n");
 }
@@ -36,7 +36,7 @@ void OPTION_NEED_VALUE(std::string_view trigger, const TypeDataReceived& type_da
   }
 }
 
-void OPTION_NOT_AVAIBLE_FOR_COMMAND(std::string_view trigger, std::string_view command){
+[[maybe_unused]] void OPTION_NOT_AVAIBLE_FOR_COMMAND(std::string_view trigger, std::string_view command){
   std::cerr << std::format("\n  [ERROR] Option '{}' is not available for command '{}'.\n", trigger, command);
   std::cerr << std::format("  Run 'kls --help' to see supported options.\n\n");
 }
@@ -45,7 +45,7 @@ void OPTION_CONFLICT_WITH(std::string_view trigger){
   std::cerr << std::format("\n  [ERROR] Option '{}' conflicts with another provided option.\n\n", trigger);
 }
 
-void INCORRECT_NUMBER_OF_POSITIONAL_NUMBER( std::string_view command, const int& number, const int& /*min*/){
+[[maybe_unused]] void INCORRECT_NUMBER_OF_POSITIONAL_NUMBER( std::string_view command, const int& number, const int& /*min*/){
   std::cerr << std::format("\n  [ERROR] Wrong number of arguments for command '{}'.\n\n", command);
   std::cerr << std::format("  Provided : {}\n", number);
   std::cerr << std::format("  Maximum  : 1\n\n");
@@ -55,15 +55,15 @@ void OPTION_REQUIERES_OPTION(std::string_view option,std::string_view requieres)
   std::cerr << std::format("[ERROR] The '{}' option requires the '{}' option to work correctly",option, requieres);
 }
 
-void DEFAULT_VALUE_OPTION(std::string_view option, const int& default_value){
+[[maybe_unused]] void DEFAULT_VALUE_OPTION(std::string_view option, const int& default_value){
   std::cerr << std::format("[WARNING] The '{}' option requires a value, since it does not have one in the input, its default value will be used '{}'", option, default_value);
 }
 
-void EQUAL_DIRECTION(){
+[[maybe_unused]] void EQUAL_DIRECTION(){
   std::cerr << std::format("[ERROR] The addresses entered are the same; the process will be skipped\n");
 }
 
-void ORIGIN_DIRECTORY_NOT_VALITED(std::string_view dir){
+[[maybe_unused]] void ORIGIN_DIRECTORY_NOT_VALITED(std::string_view dir){
   std::cerr << std::format("[ERROR] The source path is invalid\n", dir);
 
 }

@@ -125,12 +125,9 @@ void NormalPrinter(const std::vector<FileEntry> &entries) {
     return;
   }
 
-  size_t max_name = 0;
-  if (!entries.empty()) {
-    auto it = std::ranges::max_element(entries, {},
-                                       [](const auto &e) { return e.name.length(); });
-    max_name = it->name.length();
-  }
+  auto it = std::ranges::max_element(entries, {},
+                                     [](const auto &e) { return e.name.length(); });
+  size_t max_name = it->name.length();
 
   size_t col_width = max_name + 2;
   size_t cols = std::max(1UL, 80 / col_width);
