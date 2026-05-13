@@ -267,31 +267,30 @@ void LIST_HANDLER(const GroupToken &token_group) {
                                       MAX_THREAD);
   std::mutex write_dirs_queue;
   std::mutex write_dirs_vector;
-  std::vector<std::jthread> threads;
+  std::vector<std::thread> threads;
   std::condition_variable condition;
   std::atomic<int> working_threads = 0;
   std::atomic<bool> root_submitted = false;
 
   threads.reserve(used_thread);
   for (size_t i = 0; i < used_thread; i++) {
-    threads.emplace_back([&, options_bool, depth_limit](std::stop_token stop) {
+    threads.emplace_back([&, options_bool, depth_limit]() {
       std::vector<FileEntry> file_entry_temp;
       std::vector<PendingDir> temp_pending_dir;
 
       std::string full_path;
       full_path.reserve(PATH_MAX);
 
-      while (!stop.stop_requested()) {
+      while (true) {
         PendingDir current;
         {
           std::unique_lock<std::mutex> lock(write_dirs_queue);
           condition.wait(lock, [&] {
-            return !pending_dirs.empty() || stop.stop_requested() ||
+            return !pending_dirs.empty() ||
                    (root_submitted && working_threads == 0);
           });
 
-          if (stop.stop_requested() ||
-              (working_threads == 0 && pending_dirs.empty())) {
+          if (working_threads == 0 && pending_dirs.empty()) {
             return;
           }
           if (pending_dirs.empty()) {
@@ -368,7 +367,11 @@ void LIST_HANDLER(const GroupToken &token_group) {
 
   root_submitted = true;
   condition.notify_all();
-  threads.clear();
+  for (auto &t : threads) {
+    if (t.joinable()) {
+      t.join();
+    }
+  }
   //-----------------------------------------------------------------------------------------
   auto run_pipeline = [&](OptionCategory target_cat) {
     for (const auto &opt : token_group.options) {
