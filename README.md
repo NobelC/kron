@@ -47,6 +47,18 @@ To install globally:
 sudo ln -sf $(pwd)/build/kls /usr/local/bin/kls
 ```
 
+## Architecture
+
+`kls` is built with performance and safety in mind. It utilizes a custom multi-threaded traversal engine that leverages `statx` for modern Linux metadata collection.
+
+The processing pipeline is divided into:
+1. **Collection**: Concurrent filesystem scanning.
+2. **Filtering**: Efficient glob-based reduction.
+3. **Sorting**: Flexible result ordering.
+4. **Presentation**: User-friendly terminal rendering.
+
+For more technical details, see the [List Architecture Documentation](docs/LIST-ARCHITECTURE.md).
+
 ---
 
 ## License
