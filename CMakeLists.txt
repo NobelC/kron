@@ -67,3 +67,24 @@ add_subdirectory(tests)
 
 # 7. Instalación
 install(TARGETS kls RUNTIME DESTINATION bin)
+
+#8. Empaquetado
+# --- Empaquetado con CPack ---
+set(CPACK_PACKAGE_NAME "kls")
+set(CPACK_PACKAGE_VERSION ${PROJECT_VERSION})
+set(CPACK_PACKAGE_CONTACT "jeremynobel16@gmail.com")
+set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "Security-focused directory listing tool")
+set(CPACK_PACKAGE_DESCRIPTION "kls is a ls replacement focused on security auditing")
+
+# Debian (.deb)
+set(CPACK_DEBIAN_PACKAGE_SECTION "utils")
+set(CPACK_DEBIAN_PACKAGE_ARCHITECTURE "amd64")
+
+# RPM (.rpm)
+set(CPACK_RPM_PACKAGE_LICENSE "MIT")
+set(CPACK_RPM_PACKAGE_GROUP "Applications/System")
+
+# Tarball
+set(CPACK_GENERATOR "DEB;RPM;TGZ")
+
+include(CPack)

@@ -1,0 +1,45 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'   # solo se activa con tags como v0.1.0, v1.0.0
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+jobs:
+  build-and-release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y cmake clang rpm
+
+      - name: Configure CMake Release
+        run: >
+          cmake -B build
+          -DCMAKE_CXX_COMPILER=clang++
+          -DCMAKE_BUILD_TYPE=Release
+          -DENABLE_SANITIZERS=OFF
+          -DENABLE_COVERAGE=OFF
+
+      - name: Build
+        run: cmake --build build --parallel
+
+      - name: Package
+        run: cd build && cpack
+
+      - name: Upload Release Assets
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            build/kls-*.deb
+            build/kls-*.rpm
+            build/kls-*.tar.gz
+          generate_release_notes: true
