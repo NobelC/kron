@@ -5,12 +5,10 @@
 #include "../../include/token/token-raw-metadata.hpp"
 #include <cstddef>
 #include <string>
-#include <unordered_set>
 #include <vector>
 
 GroupToken parsing(const std::vector<Token> &token_raw) {
   GroupToken token_clasificated;
-  std::unordered_set<std::string_view> see_token;
 
   // Tratamiento y verificacion de existencia
   for (size_t pos = 0; pos < token_raw.size(); pos++) {
@@ -119,7 +117,6 @@ GroupToken parsing(const std::vector<Token> &token_raw) {
             .name = data_token->normalized_name,
             .value = "",
         });
-        continue;
       }
       continue;
     }

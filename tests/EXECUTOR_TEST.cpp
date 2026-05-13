@@ -7,6 +7,7 @@
 
 class ExecutorSuite : public ::testing::Test {
 protected:
+  // cppcheck-suppress unusedFunction
   static void SetUpTestSuite() {
     CreatedOptionData();
   }

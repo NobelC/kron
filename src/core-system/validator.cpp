@@ -124,17 +124,22 @@ bool ValidationGroupToken(GroupToken &group_raw) {
       continue; // Should have been caught by parsing, but safety first
     }
     // Comprobamos si alguna opcion tiene conflictos con otra
-    for (const auto &conflict_option : option_data->conflict_name) {
-      if (eliminated_duplicated_option.contains(conflict_option)) {
-        OPTION_CONFLICT_WITH(conflict_option);
-        return false;
-      }
+    auto conflict_it = std::ranges::find_if(
+        option_data->conflict_name, [&](const auto &conflict_option) {
+          return eliminated_duplicated_option.contains(conflict_option);
+        });
+    if (conflict_it != option_data->conflict_name.end()) {
+      OPTION_CONFLICT_WITH(*conflict_it);
+      return false;
     }
-    for (const auto &requieres_option : option_data->requieres_name) {
-      if (!eliminated_duplicated_option.contains(requieres_option)) {
-        OPTION_REQUIERES_OPTION(option_data->normalized_name, requieres_option);
-        return false;
-      }
+
+    auto requires_it = std::ranges::find_if(
+        option_data->requieres_name, [&](const auto &requieres_option) {
+          return !eliminated_duplicated_option.contains(requieres_option);
+        });
+    if (requires_it != option_data->requieres_name.end()) {
+      OPTION_REQUIERES_OPTION(option_data->normalized_name, *requires_it);
+      return false;
     }
 
     // Validar tipo de dato que debe recibir:

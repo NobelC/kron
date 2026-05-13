@@ -80,8 +80,8 @@ void NormalRecolection(FileEntry &fe, std::string_view current_path,
   }
 }
 
-void LongRecolection(FileEntry &fe, const std::string &full_path, dirent *entry,
-                     std::string_view current_path) {
+void LongRecolection(FileEntry &fe, const std::string &full_path,
+                     const dirent *entry, std::string_view current_path) {
   struct statx stx;
   unsigned int mask = STATX_BASIC_STATS | STATX_BTIME;
 
@@ -126,8 +126,10 @@ void NormalPrinter(const std::vector<FileEntry> &entries) {
   }
 
   size_t max_name = 0;
-  for (const auto &e : entries) {
-    max_name = std::max(max_name, e.name.length());
+  if (!entries.empty()) {
+    auto it = std::ranges::max_element(entries, {},
+                                       [](const auto &e) { return e.name.length(); });
+    max_name = it->name.length();
   }
 
   size_t col_width = max_name + 2;
@@ -377,7 +379,7 @@ void LIST_HANDLER(const GroupToken &token_group) {
       if (metadata && metadata->category == target_cat) {
         FilterStruct fs{.entries = file_entry, .context = opt.value};
         std::visit(
-            [&](auto &handler) {
+            [&](const auto &handler) {
               if constexpr (std::is_same_v<std::decay_t<decltype(handler)>,
                                            FilteringProcess>) {
                 handler(fs);
