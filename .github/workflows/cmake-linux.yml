@@ -69,12 +69,14 @@ jobs:
       run: ctest --output-on-failure
 
     - name: Generate Coverage Report
+      if: matrix.compiler == 'gcc'
       run: |
         lcov --directory . --capture --output-file coverage.info
         lcov --remove coverage.info '/usr/*' '*/build/_deps/*' '*/tests/*' --output-file coverage.info
         lcov --list coverage.info
 
     - name: Upload to Codecov
+      if: matrix.compiler == 'gcc'
       uses: codecov/codecov-action@v4
       with:
         files: coverage.info
