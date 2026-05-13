@@ -10,12 +10,25 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 # 1. Configuración de Compilación
+option(ENABLE_SANITIZERS "Enable Address and Undefined Behavior Sanitizers" ON)
+option(ENABLE_COVERAGE "Enable code coverage instrumentation" OFF)
+
 add_compile_options(
     -Wall -Wextra -Wpedantic -Wconversion 
-    -Wshadow -fsanitize=address,undefined 
-    -g -fno-omit-frame-pointer
+    -Wshadow -g -fno-omit-frame-pointer
 )
-add_link_options(-fsanitize=address,undefined)
+
+if(ENABLE_SANITIZERS AND (CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang"))
+    add_compile_options(-fsanitize=address,undefined)
+    add_link_options(-fsanitize=address,undefined)
+    message(STATUS "Sanitizers enabled")
+endif()
+
+if(ENABLE_COVERAGE AND (CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang"))
+    add_compile_options(--coverage -fprofile-arcs -ftest-coverage)
+    add_link_options(--coverage)
+    message(STATUS "Coverage instrumentation enabled")
+endif()
 
 # 2. Fuentes del Core
 set(CORE_SOURCES
