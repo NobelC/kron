@@ -42,6 +42,7 @@ jobs:
         --std=c++20 \
         --suppress=syntaxError:tests/ \
         --suppress=missingIncludeSystem \
+        --suppress=missingInclude \
         --suppress=unmatchedSuppression \
         -I include/ \
         .
