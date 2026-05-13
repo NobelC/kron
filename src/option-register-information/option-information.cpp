@@ -5,14 +5,7 @@
 #include <string_view>
 #include <tuple>
 #include <vector>
-
-#include "../../include/option/option-implementation.hpp"
-#include "../../include/option/option-raw-metadata.hpp"
-#include <algorithm>
-#include <any>
-#include <string_view>
-#include <tuple>
-#include <vector>
+#include <fnmatch.h>
 
 void CreatedOptionData() {
   // --- OPCIONES GLOBALES ---
@@ -89,23 +82,15 @@ void CreatedOptionData() {
   filter.data_type = TypeDataReceived::EXTENSION;
   filter.category = OptionCategory::FILTERING;
   filter.hanlder = FilteringProcess([](FilterStruct &filter_contex) {
-    const auto *pattern_ptr =
-        std::any_cast<std::string>(&filter_contex.context);
-    if (!pattern_ptr) {
+    const auto *pattern_sv_ptr =
+        std::any_cast<std::string_view>(&filter_contex.context);
+    if (!pattern_sv_ptr) {
       return;
     }
 
-    const std::string &pattern = *pattern_ptr;
+    std::string pattern(*pattern_sv_ptr);
     std::erase_if(filter_contex.entries, [&pattern](const FileEntry &e) {
-      std::string_view filename = e.name;
-      if (pattern.starts_with('*')) {
-        return !filename.ends_with(std::string_view(pattern).substr(1));
-      }
-      if (pattern.ends_with('*')) {
-        return !filename.starts_with(
-            std::string_view(pattern).substr(0, pattern.size() - 1));
-      }
-      return filename != pattern;
+      return fnmatch(pattern.c_str(), e.name.c_str(), 0) != 0;
     });
   });
   GeneralOptionLog(filter);
