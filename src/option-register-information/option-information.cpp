@@ -11,7 +11,7 @@
 namespace {
   std::string FormatTime(const std::time_t& time){
     std::array<char, 20> buffer;
-    auto* tm_ptr = std::localtime(&time);
+    const auto* tm_ptr = std::localtime(&time);
     if (tm_ptr && std::strftime(buffer.data(), sizeof(buffer), "%Y-%m-%d", tm_ptr)) {
         return {buffer.data()};
     }
