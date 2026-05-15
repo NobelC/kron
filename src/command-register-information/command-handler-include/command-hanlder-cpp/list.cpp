@@ -49,38 +49,6 @@ struct PendingDir {
   int depth;
 };
 
-void NormalRecolection(FileEntry &fe, std::string_view current_path,
-                       dirent *entry) {
-  fe.inode = entry->d_ino;
-  fe.size = std::numeric_limits<uint64_t>::max();
-  fe.nlinks = 0;
-  fe.mode = 0;
-  fe.uid = 0;
-  fe.gid = 0;
-  fe.mtime = 0;
-  fe.btime = 0;
-
-  fe.is_directory = (entry->d_type == DT_DIR);
-  fe.is_symlink = (entry->d_type == DT_LNK);
-  fe.symlink_broken = false;
-  fe.has_capabilities = false;
-
-  fe.name = entry->d_name;
-  fe.path = current_path;
-
-  fe.symlink_target.clear();
-  fe.extension.clear();
-  if (!fe.health.empty()) {
-    fe.health.clear();
-  }
-
-  std::string_view name_view(entry->d_name);
-  if (size_t dot_pos = name_view.find_last_of('.');
-      dot_pos != std::string_view::npos && dot_pos > 0) {
-    fe.extension = std::string(name_view.substr(dot_pos));
-  }
-}
-
 void LongRecolection(FileEntry &fe, const std::string &full_path,
                      const dirent *entry, std::string_view current_path) {
   struct statx stx;
@@ -121,32 +89,6 @@ void LongRecolection(FileEntry &fe, const std::string &full_path,
   }
 }
 
-void NormalPrinter(const std::vector<FileEntry> &entries) {
-  if (entries.empty()) {
-    return;
-  }
-
-  auto it = std::ranges::max_element(entries, {},
-                                     [](const auto &e) { return e.name.length(); });
-  size_t max_name = it->name.length();
-
-  size_t col_width = max_name + 2;
-  size_t cols = std::max(1UL, 80 / col_width);
-
-  for (size_t i = 0; i < entries.size(); ++i) {
-    if (entries[i].is_directory) {
-      std::cout << std::format("\033[1;34m{:<{}}\033[0m", entries[i].name,
-                               col_width);
-    } else {
-      std::cout << std::format("{:<{}}", entries[i].name, col_width);
-    }
-
-    if ((i + 1) % cols == 0) {
-      std::cout << "\n";
-    }
-  }
-  std::cout << "\n";
-}
 
 void LongPrinter(const std::vector<FileEntry> &entries) {
   if (entries.empty()) {
@@ -161,7 +103,7 @@ void LongPrinter(const std::vector<FileEntry> &entries) {
 
   for (const auto &e : entries) {
     // 1. Permisos (Modo)
-    std::string perms = e.is_directory ? "d" : (e.is_symlink ? "l" : "-");
+    std::string perms;
     perms += (e.mode & S_IRUSR) ? "r" : "-";
     perms += (e.mode & S_IWUSR) ? "w" : "-";
     perms += (e.mode & S_IXUSR) ? "x" : "-";
@@ -171,8 +113,8 @@ void LongPrinter(const std::vector<FileEntry> &entries) {
     perms += (e.mode & S_IXGRP) ? "x" : "-";
 
     perms += (e.mode & S_IROTH) ? "r" : "-";
-    perms += (e.mode & S_IWOTH) ? "r" : "-";
-    perms += (e.mode & S_IXOTH) ? "r" : "-";
+    perms += (e.mode & S_IWOTH) ? "w" : "-";
+    perms += (e.mode & S_IXOTH) ? "x" : "-";
 
     std::string owner;
     std::string group_str;
@@ -345,11 +287,7 @@ void LIST_HANDLER(const GroupToken &token_group) {
           }
 
           FileEntry entry_data;
-          if (!options_bool.needs_metadata) {
-            NormalRecolection(entry_data, current.path, entry);
-          } else {
-            LongRecolection(entry_data, full_path, entry, current.path);
-          }
+          LongRecolection(entry_data, full_path, entry, current.path);
           file_entry_temp.push_back(std::move(entry_data));
         }
         closedir(dir_ptr);
@@ -406,9 +344,5 @@ void LIST_HANDLER(const GroupToken &token_group) {
   run_pipeline(OptionCategory::FILTERING);
   run_pipeline(OptionCategory::SORTING);
 
-  if (options_bool.long_format == true) {
-    LongPrinter(file_entry);
-  } else {
-    NormalPrinter(file_entry);
-  }
+  LongPrinter(file_entry);
 }
