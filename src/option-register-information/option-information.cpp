@@ -2,13 +2,25 @@
 #include "../../include/option/option-raw-metadata.hpp"
 #include <algorithm>
 #include <any>
+#include <ctime>
 #include <string_view>
 #include <tuple>
 #include <vector>
 #include <fnmatch.h>
 
+namespace {
+  std::string FormatTime(const std::time_t& time){
+    std::array<char, 20> buffer;
+    auto* tm_ptr = std::localtime(&time);
+    if (tm_ptr && std::strftime(buffer.data(), sizeof(buffer), "%Y-%m-%d", tm_ptr)) {
+        return {buffer.data()};
+    }
+    return "0000-00-00";
+  }
+}
+
 void CreatedOptionData() {
-  // --- OPCIONES GLOBALES ---
+  // --- GLOBAL OPTIONS ---
 
   OptionMetaData help;
   help.normalized_name = "--help";
@@ -99,52 +111,37 @@ void CreatedOptionData() {
   modified_before.normalized_name = "--modified-before";
   modified_before.data_type = TypeDataReceived::DATE;
   modified_before.category = OptionCategory::FILTERING;
-  /*
-  filter.hanlder = FilteringProcess([](FilterStruct& filter_contex) {
-      const auto* pattern_ptr =
-  std::any_cast<std::string>(&filter_contex.context); if (!pattern_ptr)
-  {return;}
+  
+  
+  modified_before.hanlder = FilteringProcess([](FilterStruct& filter_contex) {
+      const auto* date_ptr =
+          std::any_cast<std::string_view>(&filter_contex.context);
+      if (!date_ptr) { return; }
 
-      const std::string& pattern = *pattern_ptr;
-      std::erase_if(filter_contex.entries, [&pattern](const FileEntry& e) {
-          std::string_view filename = e.name;
-          if (pattern.starts_with('*')) {
-              return !filename.ends_with(std::string_view(pattern).substr(1));
-          }
-          if (pattern.ends_with('*')) {
-              return !filename.starts_with(std::string_view(pattern).substr(0,
-  pattern.size() - 1));
-          }
-          return filename != pattern;
+      const std::string_view& target_date = *date_ptr; 
+      std::erase_if(filter_contex.entries, [&target_date](const FileEntry& e) {
+          const auto& file_date = FormatTime(e.mtime);
+          return file_date >= target_date;
       });
   });
-  */
+  
   GeneralOptionLog(modified_before);
 
   OptionMetaData modified_after;
   modified_after.normalized_name = "--modified-after";
   modified_after.data_type = TypeDataReceived::DATE;
   modified_after.category = OptionCategory::FILTERING;
-  /*
-  filter.hanlder = FilteringProcess([](FilterStruct& filter_contex) {
-      const auto* pattern_ptr =
-  std::any_cast<std::string>(&filter_contex.context); if (!pattern_ptr)
-  {return;}
+  modified_after.hanlder = FilteringProcess([](FilterStruct& filter_contex) {
+      const auto* date_ptr =
+          std::any_cast<std::string_view>(&filter_contex.context);
+      if (!date_ptr) { return; }
 
-      const std::string& pattern = *pattern_ptr;
-      std::erase_if(filter_contex.entries, [&pattern](const FileEntry& e) {
-          std::string_view filename = e.name;
-          if (pattern.starts_with('*')) {
-              return !filename.ends_with(std::string_view(pattern).substr(1));
-          }
-          if (pattern.ends_with('*')) {
-              return !filename.starts_with(std::string_view(pattern).substr(0,
-  pattern.size() - 1));
-          }
-          return filename != pattern;
+      const std::string_view& target_date = *date_ptr; 
+      std::erase_if(filter_contex.entries, [&target_date](const FileEntry& e) {
+          const auto& file_date = FormatTime(e.mtime);
+          return file_date <= target_date;
       });
   });
-  */
   GeneralOptionLog(modified_after);
 
   // --- ORDENAMIENTO (SORTING) ---
@@ -155,12 +152,12 @@ void CreatedOptionData() {
   sort.category = OptionCategory::SORTING;
   sort.hanlder = FilteringProcess([](FilterStruct &filter_contex) {
     const auto *criteria_ptr =
-        std::any_cast<std::string>(&filter_contex.context);
+        std::any_cast<std::string_view>(&filter_contex.context);
     if (!criteria_ptr) {
       return;
     }
 
-    std::string criteria = *criteria_ptr;
+    std::string criteria(*criteria_ptr);
     if (criteria == "name") {
       std::ranges::sort(filter_contex.entries,
                         [](const FileEntry &a, const FileEntry &b) {

@@ -41,6 +41,7 @@ struct Option {
   bool no_header_format : 1;
   bool follow_symlink : 1;
   bool capabilities : 1;
+  bool needs_metadata : 1;
 };
 
 struct PendingDir {
@@ -235,7 +236,19 @@ void LIST_HANDLER(const GroupToken &token_group) {
       .capabilities =
           std::ranges::any_of(token_group.options, [](const auto &t) {
             return t.name == "--capabilities";
-          })};
+          }),
+      .needs_metadata = false};
+
+  options_bool.needs_metadata =
+      options_bool.long_format ||
+      std::ranges::any_of(token_group.options, [](const auto &opt) {
+        return opt.name == "--modified-before" ||
+               opt.name == "--modified-after" ||
+               (opt.name == "--sort" &&
+                (opt.value == "modified" || opt.value == "size" ||
+                 opt.value == "type" || opt.value == "extension" ||
+                 opt.value == "ext"));
+      });
 
   int depth_limit = 0;
   auto it = std::ranges::find_if(
@@ -332,7 +345,7 @@ void LIST_HANDLER(const GroupToken &token_group) {
           }
 
           FileEntry entry_data;
-          if (!options_bool.long_format) {
+          if (!options_bool.needs_metadata) {
             NormalRecolection(entry_data, current.path, entry);
           } else {
             LongRecolection(entry_data, full_path, entry, current.path);
