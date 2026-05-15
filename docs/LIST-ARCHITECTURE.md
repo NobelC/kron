@@ -54,14 +54,117 @@ Users can control the intensity of the traversal using the `--depth` flag, preve
 
 ## 5. Usage & Options
 
+### Collection
 | Option | Alias | Description |
 | :--- | :--- | :--- |
-| `--recursive` | `-r` | Enable multi-threaded recursive traversal. |
-| `--all` | `-a` | Show hidden files (those starting with `.`). |
-| `--long` | `-l` | Use the technical long format with security details. |
-| `--filter` | | Glob-style filtering (e.g., `*.sh`, `*token*`). Uses `fnmatch`. |
-| `--depth` | `-d` | Limit recursion to a specific depth. |
-| `--sort` | | Sort results by `name`, `size`, `type`, or `severity`. |
+| `--all` | `-a` | Include hidden files |
+| `--recursive` | `-r` | Descend into subdirectories |
+| `--depth=N` | `-d` | Maximum depth in recursion |
+| `--dirs-only` | | Directories only |
+| `--files-only` | | Regular files only |
+| `--follow-symlinks` | | Resolve symlinks when listing |
+| `--one-per-line` | `-1` | Force one entry per line |
+
+### General Filtering
+| Option | Alias | Description |
+| :--- | :--- | :--- |
+| `--ext=cpp,hpp` | | Filter by extensions |
+| `--larger-than=N` | | Files larger than N (1KB, 2MB) |
+| `--smaller-than=N` | | Files smaller than N |
+| `--modified-since=N` | | Modified in the last N days |
+| `--modified-before=N` | | Modified more than N days ago |
+| `--name=pattern` | | Filter by glob name pattern |
+| `--owner=user` | | Filter by owner |
+| `--group=group` | | Filter by group |
+| `--min-links=N` | | Files with at least N hardlinks |
+
+### Security — Filtering
+| Option | Alias | Description |
+| :--- | :--- | :--- |
+| `--only-alerts` | | Only show entries with alerts |
+| `--only-suid` | | Only files with active SUID |
+| `--only-sgid` | | Only files with active SGID |
+| `--only-world-writable` | | Only files writable by everyone |
+| `--only-world-executable` | | Only files executable by everyone |
+| `--only-capabilities` | | Only files with capabilities |
+| `--only-orphans` | | Only UID/GID with no entry in passwd/group |
+| `--only-broken` | | Only broken symlinks |
+| `--only-future` | | Only files with mtime in the future |
+| `--only-empty` | | Only 0-byte files |
+| `--only-sticky` | | Only files with sticky bit on non-directories |
+| `--only-anomalies` | | Only temporal anomalies (ctime < mtime) |
+| `--only-ancient=N` | | Only files not modified in more than N days |
+| `--exclude-alerts` | | Show everything except entries with alerts |
+| `--min-severity=N` | | Only alerts of level N or higher (1, 2, 3) |
+
+### Security — Analysis
+| Option | Alias | Description |
+| :--- | :--- | :--- |
+| `--health` | | Enabled by default — full health analysis |
+| `--no-health` | | Disable health analysis |
+| `--capabilities` | | Show Linux capabilities per entry |
+| `--acl` | | Show extended ACLs if they exist |
+| `--attack-surface` | | Summary of the directory's attack surface |
+| `--timeline` | | Temporal anomaly analysis |
+| `--duplicates` | | Detect files with identical content |
+| `--sticky` | | Explicitly mark sticky bit |
+| `--immutable` | | Detect files with immutable flag (chattr +i) |
+| `--setuid-tree` | | List all SUIDs in the recursive tree |
+| `--world-tree` | | List all world-writable in the tree |
+
+### Sorting
+| Option | Alias | Description |
+| :--- | :--- | :--- |
+| `--sort=name` | | By name (default) |
+| `--sort=size` | | By size |
+| `--sort=date` | | By modification date |
+| `--sort=ext` | | By extension |
+| `--sort=type` | | Directories first |
+| `--sort=severity` | | By security alert level |
+| `--sort=owner` | | By owner |
+| `--reverse` | | Reverse order |
+| `--dirs-first` | | Directories always first |
+| `--alerts-first` | | Entries with alerts always first |
+
+### Presentation
+| Option | Alias | Description |
+| :--- | :--- | :--- |
+| `--long` | `-l` | Full metadata per entry |
+| `--no-header` | | Suppress headers in `--long` |
+| `--tree` | | Hierarchical view |
+| `--grid` | | Multiple columns |
+| `--compact` | | Names only, maximum density |
+| `--summary` | | Statistics only, without listing entries |
+| `--security-report` | | Consolidated security report at the end |
+| `--no-color` | | No ANSI colors |
+| `--no-icons` | | No alert symbols |
+| `--inode` | | Show inode number |
+| `--nlinks` | | Show number of hardlinks |
+| `--blocks` | | Show disk blocks used |
+| `--octal` | | Show permissions in octal besides symbolic |
+| `--numeric-ids` | | Show numeric UID/GID instead of names |
+| `--full-path` | | Show full absolute path |
+| `--timestamp=mtime` | | Which timestamp to show: mtime, ctime, btime |
+| `--time-format=iso` | | Time format: iso, relative, epoch |
+
+### Structured Output
+| Option | Alias | Description |
+| :--- | :--- | :--- |
+| `--format=json` | | Parseable JSON output |
+| `--format=csv` | | CSV output |
+| `--format=ndjson` | | One JSON object per line |
+| `--fields=name,size` | | Fields to include in structured output |
+
+### System
+| Option | Alias | Description |
+| :--- | :--- | :--- |
+| `--help` | `-h` | Help |
+| `--version` | `-v` | Version |
+| `--quiet` | `-q` | Errors only |
+| `--no-heading` | | No directory heading |
+| `--threads=N` | | Number of threads (default: auto) |
+| `--si` | | Use powers of 1000 instead of 1024 |
+
 
 ## 6. Optimization Details
 
