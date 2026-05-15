@@ -144,6 +144,31 @@ void CreatedOptionData() {
   });
   GeneralOptionLog(modified_after);
 
+  
+  OptionMetaData dirs_only;
+  dirs_only.normalized_name = "--dirs-only";
+  dirs_only.data_type = TypeDataReceived::NONE;
+  dirs_only.category = OptionCategory::FILTERING;
+  dirs_only.hanlder = FilteringProcess([](FilterStruct& filter_contex) {
+      std::erase_if(filter_contex.entries, [](const FileEntry& e){
+          return !e.is_directory;
+          });
+  });
+  GeneralOptionLog(dirs_only);
+
+  
+  OptionMetaData file_only;
+  file_only.normalized_name = "--file-only";
+  file_only.data_type = TypeDataReceived::NONE;
+  file_only.category = OptionCategory::FILTERING;
+  file_only.hanlder = FilteringProcess([](FilterStruct& filter_contex) {
+      std::erase_if(filter_contex.entries, [](const FileEntry& e){
+          return (e.is_directory || e.is_symlink) ;
+          });
+  });
+  GeneralOptionLog( file_only);
+
+
   // --- ORDENAMIENTO (SORTING) ---
 
   OptionMetaData sort;
