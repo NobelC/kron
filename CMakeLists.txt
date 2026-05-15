@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.15)
 project(kls
-    VERSION 1.0.0
+    VERSION 0.1.1
     DESCRIPTION "kls is a security-focused directory listing tool."
     LANGUAGES CXX
 )

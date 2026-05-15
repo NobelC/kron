@@ -5,6 +5,9 @@ on:
     tags:
       - 'v*'   # solo se activa con tags como v0.1.0, v1.0.0
 
+permissions:
+  contents: write
+
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
