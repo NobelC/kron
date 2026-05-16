@@ -55,28 +55,27 @@ Users can control the intensity of the traversal using the `--depth` flag, preve
 ## 5. Usage & Options
 
 ### Collection
-| Option | Alias | Description |
-| :--- | :--- | :--- |
-| `--all` | `-a` | Include hidden files |
-| `--recursive` | `-r` | Descend into subdirectories |
-| `--depth=N` | `-d` | Maximum depth in recursion |
-| `--dirs-only` | | Directories only |
-| `--files-only` | | Regular files only |
-| `--follow-symlinks` | | Resolve symlinks when listing |
-| `--one-per-line` | `-1` | Force one entry per line |
+| Option              | Alias | Description                   |
+| :------------------ | :---- | :---------------------------- |
+| `--all`             | `-a`  | Include hidden files          |
+| `--recursive`       | `-r`  | Descend into subdirectories   |
+| `--depth=N`         | `-d`  | Maximum depth in recursion    |
+| `--dirs-only`       |       | Directories only              |
+| `--files-only`      |       | Regular files only            |
+| `--follow-symlinks` |       | Resolve symlinks when listing |
 
 ### General Filtering
-| Option | Alias | Description |
-| :--- | :--- | :--- |
-| `--ext=cpp,hpp` | | Filter by extensions |
-| `--larger-than=N` | | Files larger than N (1KB, 2MB) |
-| `--smaller-than=N` | | Files smaller than N |
-| `--modified-since=N` | | Modified in the last N days |
-| `--modified-before=N` | | Modified more than N days ago |
-| `--name=pattern` | | Filter by glob name pattern |
-| `--owner=user` | | Filter by owner |
-| `--group=group` | | Filter by group |
-| `--min-links=N` | | Files with at least N hardlinks |
+| Option                | Alias | Description                     |
+| :-------------------- | :---  | :------------------------------ |
+| `--ext=cpp,hpp`       |       | Filter by extensions            |
+| `--larger-than=N`     |       | Files larger than N (1KB, 2MB)  |
+| `--smaller-than=N`    |       | Files smaller than N            |
+| `--modified-since=N`  |       | Modified in the last N days     |
+| `--modified-before=N` |       | Modified more than N days ago   |
+| `--name=pattern`      |       | Filter by glob name pattern     |
+| `--owner=user`        |       | Filter by owner                 |
+| `--group=group`       |       | Filter by group                 |
+| `--min-links=N`       |       | Files with at least N hardlinks |
 
 ### Security — Filtering
 | Option | Alias | Description |

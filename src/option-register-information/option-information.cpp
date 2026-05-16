@@ -1,23 +1,29 @@
 #include "../../include/option/option-implementation.hpp"
 #include "../../include/option/option-raw-metadata.hpp"
+#include "token/token-raw-metadata.hpp"
 #include <algorithm>
 #include <any>
+#include <cstddef>
 #include <ctime>
+#include <fnmatch.h>
+#include <sstream>
+#include <string>
 #include <string_view>
 #include <tuple>
+#include <unordered_set>
 #include <vector>
-#include <fnmatch.h>
 
 namespace {
-  std::string FormatTime(const std::time_t& time){
-    std::array<char, 20> buffer;
-    const auto* tm_ptr = std::localtime(&time);
-    if (tm_ptr && std::strftime(buffer.data(), sizeof(buffer), "%Y-%m-%d", tm_ptr)) {
-        return {buffer.data()};
-    }
-    return "0000-00-00";
+std::string FormatTime(const std::time_t &time) {
+  std::array<char, 20> buffer;
+  const auto *tm_ptr = std::localtime(&time);
+  if (tm_ptr &&
+      std::strftime(buffer.data(), sizeof(buffer), "%Y-%m-%d", tm_ptr)) {
+    return {buffer.data()};
   }
+  return "0000-00-00";
 }
+} // namespace
 
 void CreatedOptionData() {
   // --- GLOBAL OPTIONS ---
@@ -111,64 +117,103 @@ void CreatedOptionData() {
   modified_before.normalized_name = "--modified-before";
   modified_before.data_type = TypeDataReceived::DATE;
   modified_before.category = OptionCategory::FILTERING;
-  
-  
-  modified_before.hanlder = FilteringProcess([](FilterStruct& filter_contex) {
-      const auto* date_ptr =
-          std::any_cast<std::string_view>(&filter_contex.context);
-      if (!date_ptr) { return; }
 
-      const std::string_view& target_date = *date_ptr; 
-      std::erase_if(filter_contex.entries, [&target_date](const FileEntry& e) {
-          const auto& file_date = FormatTime(e.mtime);
-          return file_date >= target_date;
-      });
+  modified_before.hanlder = FilteringProcess([](FilterStruct &filter_contex) {
+    const auto *date_ptr =
+        std::any_cast<std::string_view>(&filter_contex.context);
+    if (!date_ptr) {
+      return;
+    }
+
+    const std::string_view &target_date = *date_ptr;
+    std::erase_if(filter_contex.entries, [&target_date](const FileEntry &e) {
+      const auto &file_date = FormatTime(e.mtime);
+      return file_date >= target_date;
+    });
   });
-  
+
   GeneralOptionLog(modified_before);
 
   OptionMetaData modified_after;
   modified_after.normalized_name = "--modified-after";
   modified_after.data_type = TypeDataReceived::DATE;
   modified_after.category = OptionCategory::FILTERING;
-  modified_after.hanlder = FilteringProcess([](FilterStruct& filter_contex) {
-      const auto* date_ptr =
-          std::any_cast<std::string_view>(&filter_contex.context);
-      if (!date_ptr) { return; }
+  modified_after.hanlder = FilteringProcess([](FilterStruct &filter_contex) {
+    const auto *date_ptr =
+        std::any_cast<std::string_view>(&filter_contex.context);
+    if (!date_ptr) {
+      return;
+    }
 
-      const std::string_view& target_date = *date_ptr; 
-      std::erase_if(filter_contex.entries, [&target_date](const FileEntry& e) {
-          const auto& file_date = FormatTime(e.mtime);
-          return file_date <= target_date;
-      });
+    const std::string_view &target_date = *date_ptr;
+    std::erase_if(filter_contex.entries, [&target_date](const FileEntry &e) {
+      const auto &file_date = FormatTime(e.mtime);
+      return file_date <= target_date;
+    });
   });
   GeneralOptionLog(modified_after);
 
-  
   OptionMetaData dirs_only;
   dirs_only.normalized_name = "--dirs-only";
   dirs_only.data_type = TypeDataReceived::NONE;
   dirs_only.category = OptionCategory::FILTERING;
-  dirs_only.hanlder = FilteringProcess([](FilterStruct& filter_contex) {
-      std::erase_if(filter_contex.entries, [](const FileEntry& e){
-          return !e.is_directory;
-          });
+  dirs_only.hanlder = FilteringProcess([](FilterStruct &filter_contex) {
+    std::erase_if(filter_contex.entries,
+                  [](const FileEntry &e) { return !e.is_directory; });
   });
   GeneralOptionLog(dirs_only);
 
-  
   OptionMetaData file_only;
   file_only.normalized_name = "--file-only";
   file_only.data_type = TypeDataReceived::NONE;
   file_only.category = OptionCategory::FILTERING;
-  file_only.hanlder = FilteringProcess([](FilterStruct& filter_contex) {
-      std::erase_if(filter_contex.entries, [](const FileEntry& e){
-          return (e.is_directory || e.is_symlink) ;
-          });
+  file_only.hanlder = FilteringProcess([](FilterStruct &filter_contex) {
+    std::erase_if(filter_contex.entries, [](const FileEntry &e) {
+      return (e.is_directory || e.is_symlink);
+    });
   });
-  GeneralOptionLog( file_only);
+  GeneralOptionLog(file_only);
 
+  OptionMetaData extension;
+  extension.normalized_name = "--ext";
+  extension.data_type = TypeDataReceived::EXTENSION;
+  extension.category = OptionCategory::FILTERING;
+  extension.hanlder = FilteringProcess([](FilterStruct &filter_contex) {
+    const auto *extension_raw =
+        std::any_cast<std::string_view>(&filter_contex.context);
+    if (!extension_raw) {
+      return;
+    }
 
+    const std::string_view ext = *extension_raw;
+    if (ext.empty()) {
+      return;
+    }
+
+    std::unordered_set<std::string_view, transparent_hash, std::equal_to<>>
+        table_extension;
+    size_t start = 0;
+    size_t end = 0;
+
+    while ((end = ext.find(',', start)) != std::string_view::npos) {
+      if (end > start) {
+        table_extension.insert(ext.substr(start, end - start));
+      }
+      start = end + 1;
+    }
+    if (start < ext.length()) {
+      table_extension.insert(ext.substr(start));
+    }
+
+    std::erase_if(filter_contex.entries,
+                  [&table_extension](const FileEntry &e) {
+                    if (e.extension.empty()) {
+                      return true;
+                    }
+                    return !table_extension.contains(e.extension.substr(1));
+                  });
+  });
+  GeneralOptionLog(extension);
   // --- ORDENAMIENTO (SORTING) ---
 
   OptionMetaData sort;
@@ -212,11 +257,12 @@ void CreatedOptionData() {
         return std::tie(a.extension, a.name) < std::tie(b.extension, b.name);
       });
     } else if (criteria == "severity") {
-      std::ranges::sort(filter_contex.entries, [](const FileEntry &a,
-                                                  const FileEntry &b) {
-        // Higher severity first (assuming health alerts are ranked)
-        return a.health.size() > b.health.size(); 
-      });
+      std::ranges::sort(filter_contex.entries,
+                        [](const FileEntry &a, const FileEntry &b) {
+                          // Higher severity first (assuming health alerts are
+                          // ranked)
+                          return a.health.size() > b.health.size();
+                        });
     }
   });
   GeneralOptionLog(sort);

@@ -15,6 +15,7 @@
 #include <sstream>
 #include <string_view>
 #include <unordered_set>
+#include <vector>
 
 namespace {
 bool DATE_VALIDATED(const std::string_view &date_str) {
@@ -60,18 +61,27 @@ bool SIZE_VALIDATED(std::string_view size_str) {
 }
 
 bool EXTENSION_VALIDATED(std::string_view extension_str) {
-  if (extension_str.empty()) {
-    return false;
+  std::vector<std::string_view> table_extension;
+  std::istringstream str_temp(extension_str.data());
+  std::string token;
+  while(std::getline(str_temp, token, ',')){
+    table_extension.emplace_back(token);
   }
-  if (extension_str.starts_with(".")) {
-    extension_str.remove_prefix(1);
+  for(const auto& str : table_extension){
+    if (str.empty()) {
+      return false;
+    }
+    if (str.starts_with(".")) {
+      extension_str.remove_prefix(1);
+    }
+    if (str.empty()) {
+      return false;
+    }
+    return std::ranges::none_of(str, [](char c) {
+      return c == '/' || c == '\\' || c == ' ';
+    });
   }
-  if (extension_str.empty()) {
-    return false;
-  }
-  return std::ranges::none_of(extension_str, [](char c) {
-    return c == '/' || c == '\\' || c == ' ';
-  });
+  return true;
 }
 } // namespace
 
