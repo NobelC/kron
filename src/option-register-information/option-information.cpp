@@ -197,12 +197,20 @@ void CreatedOptionData() {
 
     while ((end = ext.find(',', start)) != std::string_view::npos) {
       if (end > start) {
-        table_extension.insert(ext.substr(start, end - start));
+        std::string_view token = ext.substr(start, end - start);
+        if (token.starts_with('.')) {
+          token.remove_prefix(1);
+        }
+        table_extension.insert(token);
       }
       start = end + 1;
     }
     if (start < ext.length()) {
-      table_extension.insert(ext.substr(start));
+      std::string_view token = ext.substr(start);
+      if (token.starts_with('.')) {
+        token.remove_prefix(1);
+      }
+      table_extension.insert(token);
     }
 
     std::erase_if(filter_contex.entries,

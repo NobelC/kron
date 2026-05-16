@@ -61,25 +61,31 @@ bool SIZE_VALIDATED(std::string_view size_str) {
 }
 
 bool EXTENSION_VALIDATED(std::string_view extension_str) {
-  std::vector<std::string_view> table_extension;
-  std::istringstream str_temp(extension_str.data());
-  std::string token;
-  while(std::getline(str_temp, token, ',')){
-    table_extension.emplace_back(token);
+  if (extension_str.empty()) {
+    return false;
   }
-  for(const auto& str : table_extension){
+
+  std::istringstream str_temp{std::string(extension_str)};
+  std::string token;
+
+  while (std::getline(str_temp, token, ',')) {
+    std::string_view str(token);
+    
+    if (str.starts_with('.')) {
+      str.remove_prefix(1);
+    }
+
     if (str.empty()) {
       return false;
     }
-    if (str.starts_with(".")) {
-      extension_str.remove_prefix(1);
-    }
-    if (str.empty()) {
-      return false;
-    }
-    return std::ranges::none_of(str, [](char c) {
+
+    bool is_valid = std::ranges::none_of(str, [](char c) {
       return c == '/' || c == '\\' || c == ' ';
     });
+
+    if (!is_valid) {
+      return false;
+    }
   }
   return true;
 }
