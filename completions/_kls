@@ -1,0 +1,42 @@
+#compdef kls
+
+_kls() {
+    local -a specs
+    specs=(
+        '(-h --help)'{-h,--help}'[Display help message and exit]'
+        '(-v --version)'{-v,--version}'[Display version information and exit]'
+        '--no-color[Disable colored output]'
+        '(-q --quiet)'{-q,--quiet}'[Run in quiet mode (suppress verbose output)]'
+        '--verbose[Enable verbose output]'
+        '(-a --all)'{-a,--all}'[Include hidden files and directories]'
+        '(-r --recursive)'{-r,--recursive}'[Recursively list subdirectories]'
+        '(-d --depth)'{-d,--depth}'[Limit recursion depth]:depth:'
+        '--filter[Only display files and directories matching glob PATTERN]:pattern:'
+        '--modified-before[Only display entries modified before specified DATE]:date (YYYY-MM-DD):'
+        '--modified-after[Only display entries modified after specified DATE]:date (YYYY-MM-DD):'
+        '--dirs-only[Only show directories]'
+        '--file-only[Only show regular files]'
+        '--ext[Only display files with specific extensions]:extensions (comma-separated):'
+        '--sort[Sort the listing by criteria]:criteria:(name size type modified ext extension severity)'
+        '--reverse[Reverse the order of the sort]'
+        '--dirs-first[List directories before other files]'
+        '(-l --long)'{-l,--long}'[Use long listing format]'
+        '--no-header[Suppress column headers]'
+        '--stats[Display execution statistics and metrics]'
+        '--health[Enable security health analysis]'
+        '--no-health[Disable security health analysis display]'
+        '--only-alerts[Only display filesystem entries with security alerts]'
+        '--attack-surface[Enable attack surface presentation view]'
+        '--alerts-first[Sort listing with security alerts first]'
+        '--security-report[Generate and display a detailed security report]'
+        '--immutable[Display files with the immutable attribute]'
+        '--setuid-tree[Recursively scan and display SetUID/SetGID file tree]'
+        '--timeline[Present file history or timeline]'
+        '--min-severity[Filter security alerts to specified severity]:severity:(info medium high)'
+        '--only-anomalies[Only show anomalous filesystem entries]'
+        '*:file:_files'
+    )
+    _arguments -s -S $specs
+}
+
+_kls "$@"

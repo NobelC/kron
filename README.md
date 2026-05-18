@@ -29,23 +29,48 @@ kls --only-alerts  # Show only files with security risks
 kls --sort=severity # Most dangerous files first
 ```
 
-## Installation
+## Installation & Compilation
 
 ### Requirements
 - **CMake 3.15+**
-- **C++23** compatible compiler
+- **C++23** compatible compiler (GCC 13+ or Clang 16+)
 
-### Build
+### 🛠️ Developer Build (With Sanitizers & Debug symbols)
+For testing, debugging, and development, compile with sanitizers enabled by default:
 ```bash
-mkdir build && cd build
-cmake ..
-make
+cmake -B build
+cmake --build build
 ```
 
-To install globally:
+### 🚀 Production Installation (For End Users)
+If you want to build and install `kls` on your system for regular use, configure it in **Release** mode with sanitizers disabled:
+
 ```bash
-sudo ln -sf $(pwd)/build/kls /usr/local/bin/kls
+# 1. Configure in Release mode (sanitizers disabled for performance)
+cmake -B build -DCMAKE_BUILD_TYPE=Release -DENABLE_SANITIZERS=OFF
+
+# 2. Build the project
+cmake --build build
+
+# 3. Install globally (defaults to /usr/local)
+sudo cmake --install build
+
+# Or specify a custom prefix (e.g., /usr)
+sudo cmake --install build --prefix /usr
 ```
+
+### 📦 Installation via Package (.deb)
+If you generated a Debian package using CPack (`cpack` inside the `build` directory), you can install it directly:
+```bash
+sudo apt install ./kls-0.1.1-Linux.deb
+```
+
+### 🧹 Uninstallation
+To completely remove `kls` and its manual pages/completions from your system:
+```bash
+sudo cmake --build build --target uninstall
+```
+
 
 ## Architecture
 

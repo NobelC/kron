@@ -66,25 +66,55 @@ enable_testing()
 add_subdirectory(tests)
 
 # 7. Instalación
-install(TARGETS kls RUNTIME DESTINATION bin)
+include(GNUInstallDirs)
+install(TARGETS kls RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+install(FILES docs/kls.1 DESTINATION ${CMAKE_INSTALL_MANDIR}/man1 COMPONENT man)
+
+# Completions para Shells
+install(FILES completions/kls.bash
+        DESTINATION ${CMAKE_INSTALL_DATADIR}/bash-completion/completions
+        RENAME kls)
+install(FILES completions/_kls
+        DESTINATION ${CMAKE_INSTALL_DATADIR}/zsh/site-functions)
+install(FILES completions/kls.fish
+        DESTINATION ${CMAKE_INSTALL_DATADIR}/fish/vendor_completions.d)
+
 
 #8. Empaquetado
 # --- Empaquetado con CPack ---
 set(CPACK_PACKAGE_NAME "kls")
 set(CPACK_PACKAGE_VERSION ${PROJECT_VERSION})
 set(CPACK_PACKAGE_CONTACT "jeremynobel16@gmail.com")
+set(CPACK_PACKAGE_MAINTAINER "Jeremy Nobel <jeremynobel16@gmail.com>")
 set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "Security-focused directory listing tool")
-set(CPACK_PACKAGE_DESCRIPTION "kls is a ls replacement focused on security auditing")
+set(CPACK_PACKAGE_DESCRIPTION_FILE "${CMAKE_CURRENT_SOURCE_DIR}/DESCRIPTION.txt")
+set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_SOURCE_DIR}/LICENSE")
 
 # Debian (.deb)
 set(CPACK_DEBIAN_PACKAGE_SECTION "utils")
 set(CPACK_DEBIAN_PACKAGE_ARCHITECTURE "amd64")
+set(CPACK_DEBIAN_PACKAGE_DEPENDS "libstdc++6, libc6")
+set(CPACK_DEBIAN_PACKAGE_HOMEPAGE "https://github.com/NobelC/kls")
 
 # RPM (.rpm)
 set(CPACK_RPM_PACKAGE_LICENSE "MIT")
 set(CPACK_RPM_PACKAGE_GROUP "Applications/System")
+set(CPACK_RPM_PACKAGE_REQUIRES "libstdc++, glibc")
+set(CPACK_RPM_PACKAGE_URL "https://github.com/NobelC/kls")
 
 # Tarball
 set(CPACK_GENERATOR "DEB;RPM;TGZ")
 
 include(CPack)
+
+# --- Custom Uninstall Target ---
+if(NOT TARGET uninstall)
+  configure_file(
+    "${CMAKE_CURRENT_SOURCE_DIR}/cmake_uninstall.cmake.in"
+    "${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake"
+    IMMEDIATE @ONLY)
+
+  add_custom_target(uninstall
+    COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake)
+endif()
+
