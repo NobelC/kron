@@ -51,6 +51,27 @@ struct PendingDir {
 
 void LongRecolection(FileEntry &fe, const std::string &full_path,
                      const dirent *entry, std::string_view current_path) {
+  // Inicialización de seguridad para evitar valores basura en bitfields y metadatos
+  fe.inode = 0;
+  fe.size = 0;
+  fe.mode = 0;
+  fe.nlinks = 0;
+  fe.uid = 0;
+  fe.gid = 0;
+  fe.is_directory = false;
+  fe.is_symlink = false;
+  fe.symlink_broken = false;
+  fe.has_capabilities = false;
+  fe.mtime = 0;
+  fe.btime = 0;
+  fe.name = entry->d_name;
+  fe.path = current_path;
+  fe.symlink_target.clear();
+  fe.extension.clear();
+  if (!fe.health.empty()) {
+    fe.health.clear();
+  }
+
   struct statx stx;
   unsigned int mask = STATX_BASIC_STATS | STATX_BTIME;
 
@@ -67,19 +88,9 @@ void LongRecolection(FileEntry &fe, const std::string &full_path,
 
     fe.btime = (stx.stx_mask & STATX_BTIME) ? stx.stx_btime.tv_sec : 0;
 
-    fe.is_directory = (entry->d_type == DT_DIR);
-    fe.is_symlink = (entry->d_type == DT_LNK);
-    fe.symlink_broken = false;
-    fe.has_capabilities = false;
-
-    fe.name = entry->d_name;
-    fe.path = current_path;
-
-    fe.symlink_target.clear();
-    fe.extension.clear();
-    if (!fe.health.empty()) {
-      fe.health.clear();
-    }
+    // Usar S_ISDIR y S_ISLNK de statx garantiza corrección sin depender de d_type del dirent (que puede ser DT_UNKNOWN)
+    fe.is_directory = S_ISDIR(stx.stx_mode);
+    fe.is_symlink = S_ISLNK(stx.stx_mode);
 
     std::string_view name_view(fe.name);
     if (size_t dot_pos = name_view.find_last_of('.');
@@ -280,14 +291,15 @@ void LIST_HANDLER(const GroupToken &token_group) {
           }
           full_path += name;
 
-          if (entry->d_type == DT_DIR && options_bool.recursive &&
+          FileEntry entry_data;
+          LongRecolection(entry_data, full_path, entry, current.path);
+
+          if (entry_data.is_directory && options_bool.recursive &&
               current.depth < depth_limit) {
             temp_pending_dir.push_back(
                 {.path = full_path, .depth = current.depth + 1});
           }
 
-          FileEntry entry_data;
-          LongRecolection(entry_data, full_path, entry, current.path);
           file_entry_temp.push_back(std::move(entry_data));
         }
         closedir(dir_ptr);
