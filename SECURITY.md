@@ -26,3 +26,9 @@ Include:
 - Steps to reproduce
 
 I'll respond as soon as I can and credit you in the fix if you want.
+
+---
+
+## 🔒 Release Cryptographic Verification
+
+All official releases are cryptographically signed with GPG to ensure their integrity. Please refer to [docs/RELEASE-SIGNING.md](docs/RELEASE-SIGNING.md) for step-by-step instructions on verifying downloaded tarballs and packages.

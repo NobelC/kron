@@ -10,7 +10,13 @@ permissions:
 
 jobs:
   build-and-release:
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.runner }}
+    strategy:
+      matrix:
+        runner: [ubuntu-latest, ubuntu-24.04-arm64]
+    env:
+      GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
+      GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
 
     steps:
       - name: Checkout
@@ -35,6 +41,20 @@ jobs:
       - name: Package
         run: cd build && cpack
 
+      - name: Import GPG key and Sign Assets
+        if: env.GPG_PRIVATE_KEY != ''
+        run: |
+          echo "$GPG_PRIVATE_KEY" | gpg --batch --import
+          for file in build/kls-*.deb build/kls-*.rpm build/kls-*.tar.gz; do
+            if [ -f "$file" ]; then
+              if [ -n "$GPG_PASSPHRASE" ]; then
+                echo "$GPG_PASSPHRASE" | gpg --batch --yes --pinentry-mode loopback --passphrase-fd 0 --detach-sign --armor "$file"
+              else
+                gpg --batch --yes --detach-sign --armor "$file"
+              fi
+            fi
+          done
+
       - name: Upload Release Assets
         uses: softprops/action-gh-release@v2
         with:
@@ -42,4 +62,7 @@ jobs:
             build/kls-*.deb
             build/kls-*.rpm
             build/kls-*.tar.gz
+            build/kls-*.deb.asc
+            build/kls-*.rpm.asc
+            build/kls-*.tar.gz.asc
           generate_release_notes: true
