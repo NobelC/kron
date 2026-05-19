@@ -92,7 +92,7 @@ sudo dnf install ./kls-0.1.1-Linux-x86_64.rpm
 
 #### Requirements
 *   **CMake 3.15+**
-*   **C++23 compatible compiler** (GCC 13+ or Clang 16+)
+*   **C++20 compatible compiler** (GCC 13+ or Clang 16+)
 *   **gzip** (Optional, to automatically compress manual pages)
 
 #### 🚀 Production Build & Installation (Recommended for users)
