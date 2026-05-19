@@ -29,47 +29,115 @@ kls --only-alerts  # Show only files with security risks
 kls --sort=severity # Most dangerous files first
 ```
 
-## Installation & Compilation
+## 📦 Installation & Packaging
 
-### Requirements
-- **CMake 3.15+**
-- **C++23** compatible compiler (GCC 13+ or Clang 16+)
+`kls` supports multiple distribution formats and architectures (including native **x86_64** and **ARM64**). Choose the method that best fits your system:
 
-### 🛠️ Developer Build (With Sanitizers & Debug symbols)
-For testing, debugging, and development, compile with sanitizers enabled by default:
+| Platform / Distro | Method | Command / Package |
+| :--- | :--- | :--- |
+| **Arch Linux** | AUR Helper | `yay -S kls` or `paru -S kls` |
+| **Arch Linux** | AUR (Manual) | `git clone https://aur.archlinux.org/kls.git && cd kls && makepkg -si` |
+| **Debian / Ubuntu** | Official `.deb` | `sudo apt install ./kls-<version>-Linux-x86_64.deb` |
+| **Fedora / RHEL** | Official `.rpm` | `sudo dnf install ./kls-<version>-Linux-x86_64.rpm` |
+| **Any Linux / macOS** | Build from Source | `cmake -B build ... && sudo cmake --install build` |
+
+---
+
+### 1. 🏔️ Arch Linux (via AUR)
+
+`kls` is officially maintained in the Arch User Repository.
+
+#### Using an AUR Helper (Recommended)
 ```bash
-cmake -B build
-cmake --build build
+yay -S kls
+# Or:
+paru -S kls
 ```
 
-### 🚀 Production Installation (For End Users)
-If you want to build and install `kls` on your system for regular use, configure it in **Release** mode with sanitizers disabled:
+#### Manual installation from AUR
+```bash
+git clone https://aur.archlinux.org/kls.git
+cd kls
+makepkg -si
+```
+
+---
+
+### 2. 🐧 Debian / Ubuntu (`.deb` Package)
+
+We provide native pre-compiled Debian packages for both **x86_64** and **ARM64** architectures. Download the matching package from our GitHub Releases page:
 
 ```bash
-# 1. Configure in Release mode (sanitizers disabled for performance)
-cmake -B build -DCMAKE_BUILD_TYPE=Release -DENABLE_SANITIZERS=OFF
+# For x86_64 (Intel/AMD)
+sudo apt install ./kls-0.1.1-Linux-x86_64.deb
 
-# 2. Build the project
-cmake --build build
+# For ARM64 (Apple Silicon / Raspberry Pi / AWS Graviton)
+sudo apt install ./kls-0.1.1-Linux-aarch64.deb
+```
 
-# 3. Install globally (defaults to /usr/local)
+---
+
+### 3. 🎩 Fedora / Red Hat (`.rpm` Package)
+
+Official RPM packages are available for Fedora, CentOS, and RHEL:
+
+```bash
+# Install the downloaded RPM package
+sudo dnf install ./kls-0.1.1-Linux-x86_64.rpm
+```
+
+---
+
+### 4. 🛠️ Build from Source (Any POSIX System)
+
+#### Requirements
+*   **CMake 3.15+**
+*   **C++23 compatible compiler** (GCC 13+ or Clang 16+)
+*   **gzip** (Optional, to automatically compress manual pages)
+
+#### 🚀 Production Build & Installation (Recommended for users)
+Configure the project in **Release** mode (disabling debug sanitizers for maximum performance) and install it globally:
+
+```bash
+# 1. Configure in Release mode (install prefix /usr)
+cmake -B build -DCMAKE_BUILD_TYPE=Release -DENABLE_SANITIZERS=OFF -DCMAKE_INSTALL_PREFIX=/usr
+
+# 2. Compile (multi-threaded)
+cmake --build build --parallel
+
+# 3. Install globally (requires root permissions)
 sudo cmake --install build
-
-# Or specify a custom prefix (e.g., /usr)
-sudo cmake --install build --prefix /usr
 ```
 
-### 📦 Installation via Package (.deb)
-If you generated a Debian package using CPack (`cpack` inside the `build` directory), you can install it directly:
+#### 🧑‍💻 Developer Build (With Sanitizers & Debug symbols)
+For testing, debugging, or active development, compile with sanitizers and debug symbols enabled:
+
 ```bash
-sudo apt install ./kls-0.1.1-Linux.deb
+cmake -B build -DENABLE_SANITIZERS=ON
+cmake --build build
 ```
+
+---
 
 ### 🧹 Uninstallation
-To completely remove `kls` and its manual pages/completions from your system:
+
+To completely remove `kls`, its shell completions, and the manual pages from your system:
+
 ```bash
 sudo cmake --build build --target uninstall
 ```
+
+---
+
+### 🔒 Cryptographic Verification
+
+Because `kls` is a security auditing tool, we cryptographically sign all release assets using GPG. Before installing, you can verify your package's integrity:
+
+```bash
+# Verify a downloaded package using its detached signature (.asc)
+gpg --verify kls-0.1.1-Linux-x86_64.deb.asc kls-0.1.1-Linux-x86_64.deb
+```
+For detailed instructions on importing public keys and managing verification, see our [Release Signing & Verification Guide](docs/RELEASE-SIGNING.md).
 
 
 ## Architecture
