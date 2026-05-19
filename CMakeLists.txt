@@ -68,7 +68,25 @@ add_subdirectory(tests)
 # 7. Instalación
 include(GNUInstallDirs)
 install(TARGETS kls RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
-install(FILES docs/kls.1 DESTINATION ${CMAKE_INSTALL_MANDIR}/man1 COMPONENT man)
+# Comprimir la man page antes de la instalación para evitar warnings de lintian
+find_program(GZIP_EXECUTABLE gzip)
+if(GZIP_EXECUTABLE)
+    set(MAN_PAGE_SOURCE "${PROJECT_SOURCE_DIR}/docs/kls.1")
+    set(MAN_PAGE_GZ "${PROJECT_BINARY_DIR}/kls.1.gz")
+    
+    add_custom_command(
+        OUTPUT "${MAN_PAGE_GZ}"
+        COMMAND ${GZIP_EXECUTABLE} -n -c "${MAN_PAGE_SOURCE}" > "${MAN_PAGE_GZ}"
+        DEPENDS "${MAN_PAGE_SOURCE}"
+        COMMENT "Compressing man page with gzip"
+    )
+    add_custom_target(compress_man ALL DEPENDS "${MAN_PAGE_GZ}")
+    
+    install(FILES "${MAN_PAGE_GZ}" DESTINATION ${CMAKE_INSTALL_MANDIR}/man1 COMPONENT man)
+else()
+    message(WARNING "gzip not found. Man page will be installed uncompressed.")
+    install(FILES docs/kls.1 DESTINATION ${CMAKE_INSTALL_MANDIR}/man1 COMPONENT man)
+endif()
 
 # Completions para Shells
 install(FILES completions/kls.bash
